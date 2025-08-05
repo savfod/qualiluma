@@ -47,7 +47,7 @@ def check_directory(directory_path: Path, verbose: bool) -> dict[Path, bool | No
     Returns:
         Dictionary mapping file paths to their check status
     """
-    file_status = {}
+    file_status: dict[Path, bool | None] = {}
 
     for root, dirs, files in os.walk(directory_path):
         # Skip common build/cache directories
