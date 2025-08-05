@@ -1,4 +1,5 @@
-from llmcqr.main import check
+from llmcqr.main import main
+
 
 def test_main():
-    check()
+    main()
