@@ -126,14 +126,18 @@ def check(target_path: Path, verbose: bool) -> int:
             print("-" * 80)  # Separator for output
 
         problems_count = sum(1 for status in file_status.values() if status is False)
+        checked_files_count = sum(1 for status in file_status.values() if status is not None)
+        passed_files_count = sum(1 for status in file_status.values() if status is True)
+        skipped_files_count = sum(1 for status in file_status.values() if status is None)
         if problems_count > 0:
             print(
-                f"\nChecked {len(file_status)} files, found {problems_count} problems."
+                f"\nChecked {checked_files_count} files, found {problems_count} problems."
             )
             return 1
         else:
-            print(f"✅ All {len(file_status)} files end with newline!")
-
+            print(f"✅ All {passed_files_count} checked files end with newline!")
+            if skipped_files_count > 0:
+                print(f"ℹ️  Skipped {skipped_files_count} files (not code files)")
     else:
         print(
             f"Error: '{target_path}' is neither a file nor a directory", file=sys.stderr
