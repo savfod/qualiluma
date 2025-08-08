@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-from .checks import check_trailing_newline, should_check_file
+from .checks import check_trailing_newline, should_check_file, llm_check_file
 
 
 def check_file(file_path: Path, verbose: bool) -> bool | None:
@@ -27,13 +27,19 @@ def check_file(file_path: Path, verbose: bool) -> bool | None:
         return None
 
     has_newline = check_trailing_newline(file_path)
-    if verbose:
-        if has_newline:
-            print(f"✅ {file_path} ends with a newline")
-        else:
-            print(f"❌ {file_path} does not end with a newline")
+    llm_result = None
+    if has_newline:
+        llm_result = llm_check_file(file_path, verbose=verbose)
 
-    return has_newline
+    if verbose:
+        if has_newline is False:
+            print(f"❌ {file_path} does not end with a newline")
+        elif llm_result is False:
+            print(f"❌ {file_path} has issues detected by LLM")
+        else:
+            print(f"✅ {file_path} passes all checks")
+
+    return (has_newline is True) and (llm_result is not False)
 
 
 def check_directory(directory_path: Path, verbose: bool) -> dict[Path, bool | None]:
