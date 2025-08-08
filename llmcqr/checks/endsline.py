@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 
-def check_file_ends_with_newline(file_path: Path) -> bool:
+def check_trailing_newline(file_path: Path) -> bool:
     """
     Check if a file ends with a newline character.
 
