@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import dotenv
-from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
 
 from .base import FileCheckResult, FileIssue, Severity, SimpleCheckerABC
 
@@ -40,11 +40,13 @@ class Checker:
             print("OPENAI_API_KEY is not set. Please set it to use the LLM checker.")
             self.llm = None
         else:
-            self.llm = OpenAI(
-                model="gpt-3.5-turbo-instruct",
-                temperature=0,
+            self.llm = ChatOpenAI(
+                model="gpt-5-nano",
+                # temperature=0,
+                # max_tokens=None,
+                timeout=None,
                 max_retries=2,
-                # api_key="...",
+                # api_key="...",  # if you prefer to pass api key in directly instaed of using env vars
                 # base_url="...",
                 # organization="...",
                 # other params...
@@ -69,8 +71,8 @@ class Checker:
                 print("Code length exceeds the limit for LLM processing, ignoring.")
             return None
 
-        response = self.llm.invoke(TEMPLATE.format(code=code))
-        response = response.strip().lstrip(".").lstrip()
+        response = self.llm.invoke([("system", TEMPLATE.format(code=code))])
+        response = response.content.strip().lstrip(".").lstrip()
 
         if response.lower().startswith("good"):
             return True
