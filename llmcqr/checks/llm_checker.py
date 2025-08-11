@@ -103,4 +103,6 @@ def llm_check_file(file_path: Path, verbose: bool = True) -> bool | None:
         return None
     code = file_path.read_text()
 
+    if verbose:
+        print(f"Checking file {file_path} with LLM...")
     return global_checker.check_code(code, verbose=verbose)
