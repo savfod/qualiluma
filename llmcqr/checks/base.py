@@ -4,7 +4,7 @@ from enum import IntEnum
 from pathlib import Path
 from typing import List, Dict, Any, Callable
 from dataclasses import dataclass
-from llmcqr.config import Config
+from ..config import Config
 import os
 
 
@@ -79,7 +79,7 @@ class CheckerABC(ABC):
             for file_name in filenames:
                 file_path = Path(dirpath) / file_name
                 if file_path.is_file() and self._filter_file(file_path):
-                    results[file_path] = self.check_file(file_path)
+                    results[file_path] = self._check_file_impl(file_path)
 
         return results
 
@@ -98,10 +98,17 @@ class CheckerABC(ABC):
 
 
 class SimpleCheckerABC(ABC):
+    def __init__(self):
+        self.checker_config = {}
+
     @abstractmethod
     def _check_file(self, file_path: Path) -> FileCheckResult:
         """Check a single file for issues."""
         pass
+
+    def _set_checker_config(self, config: dict) -> None:
+        """Set the checker-specific configuration."""
+        self.checker_config = config
 
 
 class SimpleCheckerAdapter(CheckerABC):
@@ -110,6 +117,7 @@ class SimpleCheckerAdapter(CheckerABC):
     def __init__(self, config: Config, checker: SimpleCheckerABC):
         super().__init__(config)
         self.checker = checker
+        self.checker._set_checker_config(self.config.get_checker_extra(self.get_name()))
 
     def _check_file_impl(self, file_path: Path) -> FileCheckResult:
         return self.checker._check_file(file_path)

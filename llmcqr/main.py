@@ -8,8 +8,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from .checks.base import CheckerABC, FunctionAdapter
-from .checks import check_trailing_newline, llm_check_file
+from .checks.base import CheckerABC, FunctionAdapter, SimpleCheckerAdapter
+from .checks import check_trailing_newline
+from .checks.llm_checker import LLMCheckerDraft
 from .config import Config
 
 
@@ -17,7 +18,8 @@ def build_checkers(config: Config) -> list[CheckerABC]:
     """Build a list of code quality checks to perform."""
     return [
         FunctionAdapter(config, check_trailing_newline, "trailing newline"),
-        FunctionAdapter(config, llm_check_file, "LLM check"),
+        # FunctionAdapter(config, llm_check_file, "LLM check"),
+        SimpleCheckerAdapter(config, LLMCheckerDraft()),
     ]
 
 

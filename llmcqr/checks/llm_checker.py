@@ -2,6 +2,7 @@ from pathlib import Path
 import dotenv
 import os
 from langchain_openai import OpenAI
+from .base import SimpleCheckerABC, FileCheckResult, FileIssue, Severity
 
 
 AVAILABLE_EXTENSIONS = [
@@ -106,3 +107,25 @@ def llm_check_file(file_path: Path, verbose: bool = True) -> bool | None:
     if verbose:
         print(f"Checking file {file_path} with LLM...")
     return global_checker.check_code(code, verbose=verbose)
+
+
+class LLMCheckerDraft(SimpleCheckerABC):
+    def _check_file(self, file_path: Path) -> FileCheckResult:
+        code = file_path.read_text()
+        result = global_checker.check_code(code)
+
+        if result is None:
+            return FileCheckResult(was_checked=False, issues=[])
+        elif result is False:
+            return FileCheckResult(
+                was_checked=True,
+                issues=[
+                    FileIssue(
+                        check_name=self.checker_config["check_name"],
+                        message=f"LLM found issues in the code: {code[:100]}...",
+                        severity=Severity.ERROR,
+                    )
+                ],
+            )
+        else:
+            return FileCheckResult(was_checked=True, issues=[])

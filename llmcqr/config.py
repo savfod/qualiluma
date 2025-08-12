@@ -58,3 +58,17 @@ class Config:
             list[str]: A list of directory names to ignore.
         """
         return self._config["directories"]["ignore"]
+
+    def get_checker_extra(self, checker_name: str) -> dict:
+        """Returns extra configuration for a given checker.
+
+        Args:
+            checker_name (str): The name of the checker to look up.
+
+        Returns:
+            dict: The extra configuration for the checker.
+        """
+        for checker in self._config.get("checkers_extra", []):
+            if checker.get("name") == checker_name:
+                return checker
+        return {}

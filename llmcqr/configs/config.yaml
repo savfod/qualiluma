@@ -24,3 +24,9 @@ directories:
     - ".git"
     - ".svn"
     - ".hg"
+
+# checker-specific extra configurations
+checkers_extra:
+  - name: "LLMCheckerDraft"
+    prompt: "Here could be some prompt"
+    check_name: "LLM draft check"
