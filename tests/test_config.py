@@ -15,3 +15,6 @@ class TestConfig:
 
         labels = config.get_labels(".unknown")
         assert labels == []
+
+
+

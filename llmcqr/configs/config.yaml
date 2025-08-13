@@ -30,3 +30,55 @@ checkers_extra:
   - name: "LLMCheckerDraft"
     prompt: "Here could be some prompt"
     check_name: "LLM draft check"
+
+skip_extensions:
+  - ".pyo"
+  - ".pyc"
+  - ".pyd"
+  - ".so"
+  - ".dll"
+  - ".dylib"
+  - ".jpg"
+  - ".jpeg"
+  - ".png"
+  - ".gif"
+  - ".bmp"
+  - ".ico"
+  - ".pdf"
+  - ".zip"
+  - ".tar"
+  - ".gz"
+  - ".bz2"
+  - ".xz"
+  - ".exe"
+  - ".bin"
+  - ".dat"
+  - ".db"
+  - ".sqlite"
+  - ".woff"
+  - ".woff2"
+  - ".ttf"
+  - ".otf"
+  - ".eot"
+
+available_extensions:
+  - ".py"
+  - ".java"
+  - ".js"
+  - ".ts"
+  - ".c"
+  - ".cpp"
+  - ".h"
+  - ".css"
+  - ".json"
+  - ".md"
+  - ".txt"
+
+llm_template: |
+  Please check the code for errors.
+  Start your answer with "good" if there are no problems, with "bad" otherwise.
+  Please provide a brief description of the problems afterwards.
+  The code is here: <<<{code}>>>.
+  (Start your answer with "good" if there are no problems, with "bad" otherwise.)
+
+llm_length_limit: 10000
