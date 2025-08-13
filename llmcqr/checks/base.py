@@ -1,11 +1,13 @@
 # checks/base.py
+import os
+import sys
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import IntEnum
 from pathlib import Path
-from typing import List, Dict, Any, Callable
-from dataclasses import dataclass
+from typing import Any, Callable
+
 from ..config import Config
-import os
 
 
 class Severity(IntEnum):
@@ -31,13 +33,13 @@ class FileIssue:
 @dataclass
 class FileCheckResult:
     was_checked: bool  # some files may be ignored
-    issues: List[FileIssue]
+    issues: list[FileIssue]
 
 
 class CheckerABC(ABC):
     def __init__(self, config: Config):
         self.config = config
-        self.statistics: list[Any] = []  # any info saved between file checks
+        self.statistics: list[Any] = []  # any info saved during dir check
 
     @abstractmethod
     def _check_file_impl(self, file_path: Path) -> FileCheckResult:
@@ -60,16 +62,16 @@ class CheckerABC(ABC):
         self._clear_statistics()
         return res
 
-    def check_directory(self, directory_path: Path) -> Dict[Path, FileCheckResult]:
+    def check_directory(self, directory_path: Path) -> dict[Path, FileCheckResult]:
         """Check all files in a directory for issues.
         Args:
             directory_path (Path): The path to the directory to check.
 
         Returns:
-            Dict[Path, FileCheckResult]:
+            dict[Path, FileCheckResult]:
                 A dictionary mapping file paths to their check results.
         """
-        results: Dict[Path, FileCheckResult] = {}
+        results: dict[Path, FileCheckResult] = {}
 
         # todo: follow_symlink = True with saving to avoid recursion
         for dirpath, dirnames, filenames in os.walk(
@@ -79,12 +81,18 @@ class CheckerABC(ABC):
             for file_name in filenames:
                 file_path = Path(dirpath) / file_name
                 if file_path.is_file() and self._filter_file(file_path):
-                    results[file_path] = self._check_file_impl(file_path)
+                    try:
+                        results[file_path] = self._check_file_impl(file_path)
+                    except Exception as e:
+                        print(f"Error checking {file_path}: {e}", file=sys.stderr)
+                        results[file_path] = FileCheckResult(
+                            was_checked=False, issues=[]
+                        )
 
         return results
 
     def _clear_statistics(self) -> None:
-        """Delete statistics"""
+        """Delete statistics."""
         self.statistics = []
 
     def _filter_file(self, file_path: Path) -> bool:
@@ -98,17 +106,10 @@ class CheckerABC(ABC):
 
 
 class SimpleCheckerABC(ABC):
-    def __init__(self):
-        self.checker_config = {}
-
     @abstractmethod
-    def _check_file(self, file_path: Path) -> FileCheckResult:
+    def _check_file(self, file_path: Path, checker_config: dict) -> FileCheckResult:
         """Check a single file for issues."""
         pass
-
-    def _set_checker_config(self, config: dict) -> None:
-        """Set the checker-specific configuration."""
-        self.checker_config = config
 
 
 class SimpleCheckerAdapter(CheckerABC):
@@ -117,10 +118,10 @@ class SimpleCheckerAdapter(CheckerABC):
     def __init__(self, config: Config, checker: SimpleCheckerABC):
         super().__init__(config)
         self.checker = checker
-        self.checker._set_checker_config(self.config.get_checker_extra(self.get_name()))
+        self.checker_config = self.config.get_checker_extra(self.get_name())
 
     def _check_file_impl(self, file_path: Path) -> FileCheckResult:
-        return self.checker._check_file(file_path)
+        return self.checker._check_file(file_path, self.checker_config)
 
     def get_name(self) -> str:
         return self.checker.__class__.__name__

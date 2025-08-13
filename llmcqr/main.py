@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.9
 """
 LLMCQR - LLM Code Quality Reviewer
 A tool for checking code quality and formatting rules.
@@ -8,14 +8,24 @@ import argparse
 import sys
 from pathlib import Path
 
-from .checks.base import CheckerABC, FunctionAdapter, SimpleCheckerAdapter
-from .checks import check_trailing_newline
+from .checks import (
+    CheckerABC,
+    FunctionAdapter,
+    SimpleCheckerAdapter,
+    check_trailing_newline,
+)
 from .checks.llm_checker import LLMCheckerDraft
 from .config import Config
 
 
 def build_checkers(config: Config) -> list[CheckerABC]:
-    """Build a list of code quality checks to perform."""
+    """Build a list of code quality checks to perform.
+    Args:
+        config: The configuration object containing settings for the checkers.
+
+    Returns:
+        A list of code quality checkers.
+    """
     return [
         FunctionAdapter(config, check_trailing_newline, "trailing newline"),
         # FunctionAdapter(config, llm_check_file, "LLM check"),
@@ -45,7 +55,16 @@ def parse_args() -> argparse.Namespace:
 
 
 def check(target_path: Path, verbose: bool, config: Config | None = None) -> int:
-    """Check the specified file or directory for code quality issues."""
+    """Check the specified file or directory for code quality issues.
+
+    Args:
+        target_path: The path to the file or directory to check.
+        verbose: Whether to show verbose output.
+        config: The configuration object containing settings for the checkers.
+
+    Returns:
+        An integer indicating the result of the check (0 for success, 1 for failure).
+    """
     if verbose:
         print(f"Checking: {target_path}")
 
@@ -84,6 +103,7 @@ def check(target_path: Path, verbose: bool, config: Config | None = None) -> int
     # todo: fixs
     errors_detected = False
     for checker_name, file_status in results.items():
+        print("=" * 80)
         print(f"Checker: {checker_name} result:")
         for file_path, status in file_status.items():
             if not status.was_checked:
@@ -104,33 +124,9 @@ def check(target_path: Path, verbose: bool, config: Config | None = None) -> int
                     if verbose:
                         print(f"✅ {file_path} - no issues found")
 
-    # problems_count = sum(1 for status in file_status.values() if status is False)
-    # checked_files_count = sum(
-    #     1 for status in file_status.values() if status is not None
-    # )
-    # passed_files_count = sum(1 for status in file_status.values() if status is True)
-    # skipped_files_count = sum(
-    #     1 for status in file_status.values() if status is None
-    # )
-    # if skipped_files_count > 0:
-    #     print(f"ℹ️  Skipped {skipped_files_count} files (not code files)")
-
-    # if problems_count > 0:
-    #     print(
-    #         f"⚠️  Checked {checked_files_count} files"
-    #         f", found {problems_count} problems."
-    #     )
-    #     return 1
-    # else:
-    #     print(f"✅ All {passed_files_count} checked files end with newline!")
-
-    # else:
-    #     print(
-    #         f"Error: '{target_path}' is neither a
-    # file nor a directory", file=sys.stderr
-    #     )
-    #     return 1
-
+    print("=" * 80)
+    msg = "❌ Errors found" if errors_detected else "✅ No errors found"
+    print(f"Check status: '{msg}'")
     return int(errors_detected)
 
 
