@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python3
 """
 LLMCQR - LLM Code Quality Reviewer
 A tool for checking code quality and formatting rules.
