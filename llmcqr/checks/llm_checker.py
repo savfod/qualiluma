@@ -96,7 +96,8 @@ def llm_check_file(file_path: Path, verbose: bool = True) -> bool | None:
         verbose: Whether to print verbose output
 
     Returns:
-        True if file ends with newline, False otherwise (errors will be printed)
+        False if some issues were found (errors will be printed),
+        True if everything is ok,
         None if file is not a supported type
     """
     if file_path.suffix not in AVAILABLE_EXTENSIONS:
