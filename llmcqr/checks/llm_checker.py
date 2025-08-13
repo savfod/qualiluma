@@ -64,7 +64,7 @@ class Checker:
         if not self.llm:
             return None
 
-        if len(code) > 10000:
+        if len(code) > LENGTH_LIMIT:
             if verbose:
                 print("Code length exceeds the limit for LLM processing, ignoring.")
             return None
