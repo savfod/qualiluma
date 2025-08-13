@@ -4,7 +4,12 @@ from pathlib import Path
 import dotenv
 from langchain_openai import ChatOpenAI
 
+from ..config import CONFIG_PATH, yaml_read
 from .base import FileCheckResult, FileIssue, Severity, SimpleCheckerABC
+
+CONFIG = yaml_read(CONFIG_PATH)
+AVAILABLE_EXTENSIONS: list[str] = CONFIG["available_extensions"]
+
 
 AVAILABLE_EXTENSIONS = [
     ".py",
@@ -22,13 +27,8 @@ AVAILABLE_EXTENSIONS = [
 
 # Limit for LLM processing,
 # mostly to avoid running on wrong files accidentally.
-LENGTH_LIMIT = 10000
-TEMPLATE = """Please check the code for errors.
-Start your answer with "good" if there are no problems, with "bad" otherwise.
-Please provide a brief description of the problems afterwards.
-The code is here: <<<{code}>>>.
-(Start your answer with "good" if there are no problems, with "bad" otherwise.)
-"""
+LENGTH_LIMIT: int = CONFIG["llm_length_limit"]
+TEMPLATE: str = CONFIG["llm_template"]
 
 
 class Checker:
