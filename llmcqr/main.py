@@ -100,7 +100,7 @@ def check(target_path: Path, verbose: bool, config: Config | None = None) -> int
         sys.exit(1)
 
     # visualize results:
-    # todo: fixs
+    # todo: fixes
     errors_detected = False
     for checker_name, file_status in results.items():
         print("=" * 80)
@@ -113,7 +113,7 @@ def check(target_path: Path, verbose: bool, config: Config | None = None) -> int
             else:
                 if len(status.issues) > 0:
                     errors_detected = True
-                    print(f"❌ {file_path} - issues founds:")
+                    print(f"❌ {file_path} - issues found:")
                     for issue in status.issues:
                         err_msg = (
                             f"    - {issue.severity.name}:"

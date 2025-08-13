@@ -92,7 +92,7 @@ class CheckerABC(ABC):
         return results
 
     def _clear_statistics(self) -> None:
-        """Delete statistics."""
+        """Clear collected statistics."""
         self.statistics = []
 
     def _filter_file(self, file_path: Path) -> bool:
@@ -128,7 +128,7 @@ class SimpleCheckerAdapter(CheckerABC):
 
 
 class FunctionAdapter(CheckerABC):
-    """Deprecated interface to support functions checks"""
+    """Deprecated interface to support function checks"""
 
     def __init__(
         self, config: Config, function: Callable[[Path], bool | None], check_name: str
