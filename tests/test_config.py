@@ -15,3 +15,13 @@ class TestConfig:
 
         labels = config.get_labels(".unknown")
         assert labels == []
+
+    def test_get_ignored_directories(self):
+        config = Config()
+        ignored_dirs = config.get_ignored_directories()
+        assert "venv" in ignored_dirs
+        assert "node_modules" in ignored_dirs
+        assert "dist" in ignored_dirs
+        assert "build" in ignored_dirs
+        assert "tmp" in ignored_dirs
+        assert "base.py" not in ignored_dirs
