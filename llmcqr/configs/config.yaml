@@ -1,0 +1,32 @@
+files:
+  type:
+    python: [".py"]
+    markdown: [".md"]
+    javascript: [".js"]
+    java: [".java"]
+    html: [".html", ".htm"]
+    text: [".txt"]
+
+  labels:
+    code: [python, javascript, java, html]
+    docs: [markdown, html, text]
+
+directories:
+  ignore:
+    - "__pycache__"
+    - "node_modules"
+    - "venv"
+    - "env"
+    - ".venv"
+    - ".env"
+    - "build"
+    - "dist"
+    - ".git"
+    - ".svn"
+    - ".hg"
+
+# checker-specific extra configurations
+checkers_extra:
+  - name: "LLMCheckerDraft"
+    prompt: "Here could be some prompt"
+    check_name: "LLM draft check"

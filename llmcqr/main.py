@@ -5,77 +5,32 @@ A tool for checking code quality and formatting rules.
 """
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
-from .checks import check_trailing_newline, should_check_file
+from .checks import (
+    CheckerABC,
+    FunctionAdapter,
+    SimpleCheckerAdapter,
+    check_trailing_newline,
+)
+from .checks.llm_checker import LLMCheckerDraft
+from .config import Config
 
 
-def check_file(file_path: Path, verbose: bool) -> bool | None:
-    """
-    Check a single file for code quality issues.
-
+def build_checkers(config: Config) -> list[CheckerABC]:
+    """Build a list of code quality checks to perform.
     Args:
-        file_path: Path to the file to check
-        verbose: Whether to print verbose output
+        config: The configuration object containing settings for the checkers.
 
     Returns:
-        True if the file passes all checks, False otherwise
+        A list of code quality checkers.
     """
-    if not should_check_file(file_path):
-        return None
-
-    has_newline = check_trailing_newline(file_path)
-    if verbose:
-        if has_newline:
-            print(f"✅ {file_path} ends with a newline")
-        else:
-            print(f"❌ {file_path} does not end with a newline")
-
-    return has_newline
-
-
-def check_directory(directory_path: Path, verbose: bool) -> dict[Path, bool | None]:
-    """
-    Recursively check all files in a directory.
-
-    Args:
-        directory_path: Path to the directory to check
-        verbose: Whether to print verbose output
-
-    Returns:
-        Dictionary mapping file paths to their check status
-    """
-    file_status: dict[Path, bool | None] = {}
-
-    for root, dirs, files in os.walk(directory_path):
-        # Skip common build/cache directories
-        dirs[:] = [
-            d
-            for d in dirs
-            if not d.startswith(".")
-            and d
-            not in {
-                "__pycache__",
-                "node_modules",
-                "venv",
-                "env",
-                ".venv",
-                ".env",
-                "build",
-                "dist",
-                ".git",
-                ".svn",
-                ".hg",
-            }
-        ]
-
-        for file_name in files:
-            file_path = Path(root) / file_name
-            file_status[file_path] = check_file(file_path, verbose)
-
-    return file_status
+    return [
+        FunctionAdapter(config, check_trailing_newline, "trailing newline"),
+        # FunctionAdapter(config, llm_check_file, "LLM check"),
+        SimpleCheckerAdapter(config, LLMCheckerDraft()),
+    ]
 
 
 def parse_args() -> argparse.Namespace:
@@ -99,59 +54,80 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def check(target_path: Path, verbose: bool) -> int:
-    """Check the specified file or directory for code quality issues."""
+def check(target_path: Path, verbose: bool, config: Config | None = None) -> int:
+    """Check the specified file or directory for code quality issues.
+
+    Args:
+        target_path: The path to the file or directory to check.
+        verbose: Whether to show verbose output.
+        config: The configuration object containing settings for the checkers.
+
+    Returns:
+        An integer indicating the result of the check (0 for success, 1 for failure).
+    """
     if verbose:
         print(f"Checking: {target_path}")
+
+    if config is None:
+        config = Config()
 
     if not target_path.exists():
         print(f"Error: Path '{target_path}' does not exist", file=sys.stderr)
         return 1
 
+    checkers = build_checkers(config)
+
     if target_path.is_file():
         # Check single file
         print(f"Checking file: {target_path}")
-        result = check_file(target_path, verbose)
-
-        if result is None:
-            print(f"Skipping file: {target_path} (not a code file)")
-            return 0
+        results = {
+            checker.get_name(): {target_path: checker.check_file(target_path)}
+            for checker in checkers
+        }
 
     elif target_path.is_dir():
         # Check directory recursively
         print(f"Checking files in: {target_path}")
-        file_status = check_directory(target_path, verbose)
-
-        if verbose:
-            print("-" * 80)  # Separator for output
-
-        problems_count = sum(1 for status in file_status.values() if status is False)
-        checked_files_count = sum(
-            1 for status in file_status.values() if status is not None
-        )
-        passed_files_count = sum(1 for status in file_status.values() if status is True)
-        skipped_files_count = sum(
-            1 for status in file_status.values() if status is None
-        )
-        if skipped_files_count > 0:
-            print(f"ℹ️  Skipped {skipped_files_count} files (not code files)")
-
-        if problems_count > 0:
-            print(
-                f"⚠️  Checked {checked_files_count} files"
-                f", found {problems_count} problems."
-            )
-            return 1
-        else:
-            print(f"✅ All {passed_files_count} checked files end with newline!")
+        results = {
+            checker.get_name(): checker.check_directory(target_path)
+            for checker in checkers
+        }
 
     else:
         print(
             f"Error: '{target_path}' is neither a file nor a directory", file=sys.stderr
         )
-        return 1
+        sys.exit(1)
 
-    return 0
+    # visualize results:
+    # todo: fixes
+    errors_detected = False
+    for checker_name, file_status in results.items():
+        print("=" * 80)
+        print(f"Checker: {checker_name} result:")
+        for file_path, status in file_status.items():
+            if not status.was_checked:
+                if verbose:
+                    print(f"... {file_path} - not checked")
+
+            else:
+                if len(status.issues) > 0:
+                    errors_detected = True
+                    print(f"❌ {file_path} - issues found:")
+                    for issue in status.issues:
+                        err_msg = (
+                            f"    - {issue.severity.name}:"
+                            f" {issue.check_name} - {issue.message}"
+                        )
+                        print(err_msg)
+                else:
+                    if verbose:
+                        print(f"✅ {file_path} - no issues found")
+
+    print("=" * 80)
+    msg = "❌ Errors found" if errors_detected else "✅ No errors found"
+    print(f"Check status: '{msg}'")
+    return int(errors_detected)
 
 
 def main() -> int:
