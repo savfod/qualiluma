@@ -4,26 +4,11 @@ from pathlib import Path
 import dotenv
 from langchain_openai import ChatOpenAI
 
-from ..config import CONFIG_PATH, yaml_read
+from ..config import CONFIG_PATH, _yaml_read
 from .base import FileCheckResult, FileIssue, Severity, SimpleCheckerABC
 
-CONFIG = yaml_read(CONFIG_PATH)
+CONFIG = _yaml_read(CONFIG_PATH)
 AVAILABLE_EXTENSIONS: list[str] = CONFIG["available_extensions"]
-
-
-AVAILABLE_EXTENSIONS = [
-    ".py",
-    ".java",
-    ".js",
-    ".ts",
-    ".c",
-    ".cpp",
-    ".h",
-    ".css",
-    ".json",
-    ".md",
-    ".txt",
-]
 
 # Limit for LLM processing,
 # mostly to avoid running on wrong files accidentally.

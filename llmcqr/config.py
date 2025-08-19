@@ -5,7 +5,7 @@ import yaml
 CONFIG_PATH = Path(__file__).parent / "configs" / "config.yaml"
 
 
-def yaml_read(file_path: Path) -> dict:
+def _yaml_read(file_path: Path) -> dict:
     """Reads a YAML file and returns the contents as a dictionary.
 
     Args:
@@ -20,7 +20,7 @@ def yaml_read(file_path: Path) -> dict:
 
 class Config:
     def __init__(self):
-        self._config = yaml_read(CONFIG_PATH)
+        self._config = _yaml_read(CONFIG_PATH)
 
         self._ext_to_type: dict[str, str] = {}
         for type_, extensions in self._config["files"]["type"].items():
