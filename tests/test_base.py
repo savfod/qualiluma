@@ -1,11 +1,6 @@
 from pathlib import Path
 
-from llmcqr.checks.base import (
-    CheckerABC,
-    FunctionAdapter,
-    SimpleCheckerABC,
-    SimpleCheckerAdapter,
-)
+from llmcqr.checks.base import SimpleCheckerAdapter
 from llmcqr.checks.llm_checker import LLMCheckerDraft
 from llmcqr.config import Config
 
@@ -19,7 +14,7 @@ class TestCheckers:
             checker,
         )
 
-        file_path = Path(__file__).parent / "file.py"
+        file_path = Path(__file__).parent / "examples" / "file.py"
         result = adapter.check_file(file_path)
 
         assert result.was_checked is True
