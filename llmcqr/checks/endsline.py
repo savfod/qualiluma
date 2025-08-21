@@ -5,6 +5,10 @@ End-of-line checking functionality for LLMCQR.
 import sys
 from pathlib import Path
 
+from ..config import CONFIG_PATH, _yaml_read
+
+skip_extensions: list[str] = _yaml_read(CONFIG_PATH)["skip_extensions"]
+
 
 def check_trailing_newline(file_path: Path) -> bool:
     """
@@ -39,37 +43,6 @@ def should_check_file(file_path: Path) -> bool:
         True if file should be checked, False otherwise
     """
     # Skip binary files and common non-text files
-    skip_extensions = {
-        ".pyc",
-        ".pyo",
-        ".pyd",
-        ".so",
-        ".dll",
-        ".dylib",
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".gif",
-        ".bmp",
-        ".ico",
-        ".pdf",
-        ".zip",
-        ".tar",
-        ".gz",
-        ".bz2",
-        ".xz",
-        ".exe",
-        ".bin",
-        ".dat",
-        ".db",
-        ".sqlite",
-        ".woff",
-        ".woff2",
-        ".ttf",
-        ".otf",
-        ".eot",
-    }
-
     # Skip hidden files and directories
     if file_path.name.startswith("."):
         return False
