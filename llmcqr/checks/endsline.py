@@ -1,5 +1,5 @@
 """
-End-of-line checking functionality for LLMCQR.
+End-of-line checking functionality for Qualiluma.
 """
 
 import sys

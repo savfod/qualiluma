@@ -1,5 +1,5 @@
 """
-LLMCQR checks module.
+Qualiluma checks module.
 """
 
 from .base import (

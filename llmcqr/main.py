@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-LLMCQR - LLM Code Quality Reviewer
+Qualiluma - LLM Code Quality Reviewer
 A tool for checking code quality and formatting rules.
 """
 
@@ -41,7 +41,8 @@ def parse_args() -> argparse.Namespace:
         Parsed arguments as Namespace object
     """
     parser = argparse.ArgumentParser(
-        description="Check code quality rules for files in a directory", prog="llmcqr"
+        description="Check code quality rules for files in a directory",
+        prog="qualiluma",
     )
     parser.add_argument("path", type=Path, help="Path to directory or file to check")
     parser.add_argument(

@@ -1,4 +1,4 @@
-from llmcqr.config import Config
+from qualiluma.config import Config
 
 
 class TestConfig:

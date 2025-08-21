@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from llmcqr.main import check
+from qualiluma.main import check
 
 
 def test_check(tmp_path: Path):

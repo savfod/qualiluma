@@ -1,5 +1,5 @@
 """
-LLMCQR - LLM Code Quality Reviewer
+Qualiluma - LLM Code Quality Reviewer
 A tool for checking code quality and formatting rules.
 """
 
