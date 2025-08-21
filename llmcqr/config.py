@@ -1,11 +1,12 @@
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 CONFIG_PATH = Path(__file__).parent / "configs" / "config.yaml"
 
 
-def _yaml_read(file_path: Path) -> dict:
+def _yaml_read(file_path: Path) -> dict[Any, Any]:
     """Reads a YAML file and returns the contents as a dictionary.
 
     Args:
@@ -60,7 +61,7 @@ class Config:
         """
         return self._config["directories"]["ignore"]
 
-    def get_checker_extra(self, checker_name: str) -> dict:
+    def get_checker_extra(self, checker_name: str) -> dict[Any, Any]:
         """Returns extra configuration for a given checker.
 
         Args:

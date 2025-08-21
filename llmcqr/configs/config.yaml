@@ -24,6 +24,7 @@ directories:
     - ".git"
     - ".svn"
     - ".hg"
+    - "tmp"
 
 # checker-specific extra configurations
 checkers_extra:
