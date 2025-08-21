@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from llmcqr.checks.base import SimpleCheckerAdapter
-from llmcqr.checks.llm_checker import LLMCheckerDraft
-from llmcqr.config import Config
+from qualiluma.checks.base import SimpleCheckerAdapter
+from qualiluma.checks.llm_checker import LLMCheckerDraft
+from qualiluma.config import Config
 
 
 class TestCheckers:
