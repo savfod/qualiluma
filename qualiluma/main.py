@@ -12,25 +12,45 @@ from .checks import (
     CheckerABC,
     FunctionAdapter,
     SimpleCheckerAdapter,
+    VariablesConsistencyChecker,
     check_trailing_newline,
 )
 from .checks.llm_checker import LLMCheckerDraft
 from .config import Config
 
 
-def build_checkers(config: Config) -> list[CheckerABC]:
+def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerABC]:
     """Build a list of code quality checks to perform.
     Args:
         config: The configuration object containing settings for the checkers.
+        filter_checkers: comma separated list of checkers to run if provided.
 
     Returns:
         A list of code quality checkers.
     """
-    return [
+    checkers = [
         FunctionAdapter(config, check_trailing_newline, "trailing newline"),
         # FunctionAdapter(config, llm_check_file, "LLM check"),
         SimpleCheckerAdapter(config, LLMCheckerDraft()),
+        SimpleCheckerAdapter(config, VariablesConsistencyChecker()),
     ]
+
+    if filter_checkers:
+        filter_list = filter_checkers.split(",")
+        checkers_dict = {checker.get_name().lower(): checker for checker in checkers}
+
+        checkers = []
+        for name in filter_list:
+            if name.lower() in checkers_dict:
+                checkers.append(checkers_dict[name.lower()])
+
+            else:
+                raise ValueError(
+                    f"Invalid checker: {name}. "
+                    f"Available checkers are: {[c.get_name() for c in checkers_dict.values()]}"
+                )
+
+    return checkers
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,15 +71,27 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Show verbose output including all checked files",
     )
-
+    parser.add_argument(
+        "-c",
+        "--checkers",
+        type=str,
+        default=None,
+        help="Comma-separated list of checkers to run (or all if not specified)",
+    )
     return parser.parse_args()
 
 
-def check(target_path: Path, verbose: bool, config: Config | None = None) -> int:
+def check(
+    target_path: Path,
+    filter_checkers: str | None = None,
+    verbose: bool = True,
+    config: Config | None = None,
+) -> int:
     """Check the specified file or directory for code quality issues.
 
     Args:
         target_path: The path to the file or directory to check.
+        filter_checkers: Comma-separated list of checkers to run (or no filtering).
         verbose: Whether to show verbose output.
         config: The configuration object containing settings for the checkers.
 
@@ -76,7 +108,7 @@ def check(target_path: Path, verbose: bool, config: Config | None = None) -> int
         print(f"Error: Path '{target_path}' does not exist", file=sys.stderr)
         return 1
 
-    checkers = build_checkers(config)
+    checkers = build_checkers(config, filter_checkers)
 
     if target_path.is_file():
         # Check single file
@@ -134,7 +166,7 @@ def check(target_path: Path, verbose: bool, config: Config | None = None) -> int
 def main() -> int:
     """Main entry point for the script."""
     args = parse_args()
-    return check(args.path, args.verbose)
+    return check(args.path, args.checkers, args.verbose)
 
 
 if __name__ == "__main__":

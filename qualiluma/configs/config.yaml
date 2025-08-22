@@ -32,6 +32,39 @@ checkers_extra:
     prompt: "Here could be some prompt"
     check_name: "LLM draft check"
 
+  - name: "VariablesConsistencyChecker"
+    prompt_detect_variables: |
+      You are given a code.
+      Every line contains its number.
+      Please create list of the variables in the following format.
+      <line number of first occurance>: <variable name> - short description of the variable meaning
+      The code is here: [[[{code}]]]
+      Please create a list of the variables in the following format:
+      <line number of first occurance>: <variable name> - short description of the variable meaning
+
+    prompt_check_consistency: |
+      You are given a list of variables in the following format.
+      <line number of first occurance>: <variable name> - short description of the variable meaning
+      Please check if the names are used consistently.
+      Write 'good' if they are used consistently, 'bad' otherwise. Provide description.
+      Good example: 'i - loop index of features, i - loop index of samples'. That is ok (i is a standard one-letter loop variable can for different contexts)
+      Not that good example: 'col_index - index of column, column_index - index of column'. That is not ok (names shortening should be consistent)
+      Not that good example: 'col_index - index of column, column_index - index of column'. That is not ok (names shortening should be consistent)
+      Bad example: 'col_index - index of column, index_col - index of column'. That is not ok (names should be consistent)
+      Bad example: 'min_loss - value of the best loss, best_loss - value of the best (min) loss'. That is not ok (names should be consistent)
+      The list of variables is here:
+      [[[{variables}]]]
+      Please start your answer with 'good' if everything is allright or 'bad' if anything is wrong.
+
+llms:
+  default:
+    model: "gpt-5-nano"
+    max_tokens: 32_768
+
+    # model: "gpt-4.1-mini"
+    # max_tokens: 32_768
+    # hm, what max_tokens should be reasonable?
+
 skip_extensions:
   - ".pyo"
   - ".pyc"

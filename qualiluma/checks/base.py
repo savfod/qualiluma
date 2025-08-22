@@ -2,7 +2,7 @@
 import os
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import IntEnum
 from pathlib import Path
 from typing import Any, Callable
@@ -33,7 +33,7 @@ class FileIssue:
 @dataclass
 class FileCheckResult:
     was_checked: bool  # some files may be ignored
-    issues: list[FileIssue]
+    issues: list[FileIssue] = field(default_factory=list)
 
 
 class CheckerABC(ABC):
