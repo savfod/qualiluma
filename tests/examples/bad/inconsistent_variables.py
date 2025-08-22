@@ -5,11 +5,11 @@ def calc_err(left: list[float], right: list[float]) -> float:
     """Calculate the error between two splits.
         The error is defined as sum lengths of parts covering intervals.
 
-    Args
+    Args:
         left: The left split of the array.
         right: The right split of the array.
 
-    Returns
+    Returns:
         The calculated error.
     """
 

@@ -37,13 +37,13 @@ def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerA
 
     if filter_checkers:
         filter_list = filter_checkers.split(",")
-
         checkers_dict = {checker.get_name().lower(): checker for checker in checkers}
-        checkers = []
 
+        checkers = []
         for name in filter_list:
             if name.lower() in checkers_dict:
                 checkers.append(checkers_dict[name.lower()])
+
             else:
                 raise ValueError(
                     f"Invalid checker: {name}. "
@@ -75,8 +75,8 @@ def parse_args() -> argparse.Namespace:
         "-c",
         "--checkers",
         type=str,
-        default="*",
-        help="Comma-separated list of checkers to run",
+        default=None,
+        help="Comma-separated list of checkers to run (or all if not specified)",
     )
     return parser.parse_args()
 
