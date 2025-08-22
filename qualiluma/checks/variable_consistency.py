@@ -1,7 +1,11 @@
+import os
 from pathlib import Path
 
 from ..util.llm import get_llm_client
 from .base import FileCheckResult, FileIssue, Severity, SimpleCheckerABC
+
+# TODO find better debug method. Maybe file logging.
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
 def _load_numbered(file_path: Path) -> str:
@@ -32,8 +36,9 @@ class VariablesConsistencyChecker(SimpleCheckerABC):
             code=code_numbered
         )
         list_variables = self.llm_client(prompt_detect)
-        print("prompt_detect:", prompt_detect)
-        print("list_variables:", list_variables)
+        if DEBUG:
+            print("prompt_detect:", prompt_detect)
+            print("list_variables:", list_variables)
 
         prompt_check = checker_config["prompt_check_consistency"].format(
             variables=list_variables
