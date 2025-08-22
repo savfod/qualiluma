@@ -1,6 +1,5 @@
 """Simple tests for the LLM module"""
 
-
 from qualiluma.util.llm import get_llm_client
 
 
