@@ -15,7 +15,7 @@ from .checks import (
     VariablesConsistencyChecker,
     check_trailing_newline,
 )
-from .checks.llm_checker import LLMCheckerDraft
+from .checks.llm_based_checker import LLMBasedChecker
 from .config import Config
 
 
@@ -30,8 +30,7 @@ def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerA
     """
     checkers = [
         FunctionAdapter(config, check_trailing_newline, "trailing newline"),
-        # FunctionAdapter(config, llm_check_file, "LLM check"),
-        SimpleCheckerAdapter(config, LLMCheckerDraft()),
+        SimpleCheckerAdapter(config, LLMBasedChecker()),
         SimpleCheckerAdapter(config, VariablesConsistencyChecker()),
     ]
 

@@ -11,13 +11,13 @@ from .base import (
     SimpleCheckerAdapter,
 )
 from .endsline import check_trailing_newline, should_check_file
-from .llm_checker import llm_check_file
+from .llm_based_checker import LLMBasedChecker
 from .variable_consistency import VariablesConsistencyChecker
 
 __all__ = [
     "check_trailing_newline",
     "should_check_file",
-    "llm_check_file",
+    "LLMBasedChecker",
     "VariablesConsistencyChecker",
     "CheckerABC",
     "FileCheckResult",
