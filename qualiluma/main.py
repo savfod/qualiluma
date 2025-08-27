@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from .checks import (
+    CaseConsistencyChecker,
     CheckerABC,
     FunctionAdapter,
     SimpleCheckerAdapter,
@@ -33,6 +34,7 @@ def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerA
         # FunctionAdapter(config, llm_check_file, "LLM check"),
         SimpleCheckerAdapter(config, LLMCheckerDraft()),
         SimpleCheckerAdapter(config, VariablesConsistencyChecker()),
+        SimpleCheckerAdapter(config, CaseConsistencyChecker()),
     ]
 
     if filter_checkers:
