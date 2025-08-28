@@ -142,7 +142,6 @@ def check(
 
             else:
                 if len(status.issues) > 0:
-                    errors_detected = True
                     problems_by_checker[checker_name].append(file_path)
                     print(f"❌ {file_path} - issues found:")
                     for issue in status.issues:
