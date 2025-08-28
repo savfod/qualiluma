@@ -6,6 +6,7 @@ A tool for checking code quality and formatting rules.
 
 import argparse
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 from .checks import (
@@ -97,9 +98,6 @@ def check(
     Returns:
         An integer indicating the result of the check (0 for success, 1 for failure).
     """
-    if verbose:
-        print(f"Checking: {target_path}")
-
     if config is None:
         config = Config()
 
@@ -132,11 +130,11 @@ def check(
         sys.exit(1)
 
     # visualize results:
-    # todo: fixes
-    errors_detected = False
+    problems_by_checker = defaultdict(list)
     for checker_name, file_status in results.items():
         print("=" * 80)
-        print(f"Checker: {checker_name} result:")
+        print(f"Checker {checker_name} running result:")
+        print()
         for file_path, status in file_status.items():
             if not status.was_checked:
                 if verbose:
@@ -145,6 +143,7 @@ def check(
             else:
                 if len(status.issues) > 0:
                     errors_detected = True
+                    problems_by_checker[checker_name].append(file_path)
                     print(f"❌ {file_path} - issues found:")
                     for issue in status.issues:
                         err_msg = (
@@ -152,13 +151,26 @@ def check(
                             f" {issue.check_name} - {issue.message}"
                         )
                         print(err_msg)
+                    print()
                 else:
                     if verbose:
                         print(f"✅ {file_path} - no issues found")
+        print()
 
     print("=" * 80)
+    errors_detected = len(problems_by_checker) > 0
     msg = "❌ Errors found" if errors_detected else "✅ No errors found"
     print(f"Check status: '{msg}'")
+    for checker_name in results:
+        if checker_name not in problems_by_checker:
+            print(f"  - ✅ No errors found by '{checker_name}'")
+        else:
+            print(
+                "  - ❌ Problems with"
+                f" {len(problems_by_checker[checker_name])}"
+                f" files found by '{checker_name}'."
+            )
+
     return int(errors_detected)
 
 

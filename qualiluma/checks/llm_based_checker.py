@@ -47,6 +47,7 @@ class LLMBasedChecker(SimpleCheckerABC):
         # Use the prompt from checker_config if present, otherwise fall back to
         # global template from config (keeps compatibility with previous behavior).
         prompt_template = checker_config.get("prompt") or CONFIG.get("llm_template")
+        assert isinstance(prompt_template, str), "Prompt template must be a string."
         prompt = prompt_template.format(code=code)
 
         result = self.llm_client(prompt)
