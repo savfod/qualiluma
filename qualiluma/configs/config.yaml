@@ -55,25 +55,16 @@ checkers_extra:
       [[[{variables}]]]
       Please start your answer with 'good' if everything is allright or 'bad' if anything is wrong.
   - name: "CaseConsistencyChecker"
-    prompt_detect_variables: |
-      You are given a code.
-      Every line contains its number.
-      Please create list of the variables in the following format.
-      <line number of first occurance>: <variable name> - short description of the variable meaning
-      The code is here: ```{code}```
-      Please create a list of the variables in the following format:
-      <line number of first occurance>: <variable name> - short description of the variable meaning
-
     prompt_check_case: |
-      You are given a list of variables in the following format.
-      <line number of first occurance>: <variable name> - short description of the variable meaning
-      Please check if the case of names is used consistently.
-      Write 'good' if it is used consistently, 'bad' otherwise. Provide description.
-      Good example: 'variable_a = 5, variable_b = 10'. That is ok (variable case is consistent)
-      Bad example: 'variable_a = 5, Variable_B = 10'. That is not ok (names should be consistent)
-      Bad example: 'variable_a = 5, variableB = 10'. That is not ok (names should be consistent)
-      The list of variables is here:
-      [[[{variables}]]]
+      You are given a code in Python (if it's not Python, please ignore this check).
+      Every line contains its number.
+      Please check if the case of variable names is used according to PEP8.
+      Write 'good' if it is used according to PEP8, 'bad' otherwise. Provide description.
+      Good example: 'VARIABLE_A = 5, variable_b = some_function_result(), _variable_c = some_private_value'. That is ok (variable case is consistent)
+      Bad example: 'variable_a = 5, Variable_B = some_function_result(), variable_c = some_private_value'. That is not ok (names should be used according to PEP8)
+      Bad example: 'Variable_a = 5, variableB = some_function_result(), _variableC = some_private_value'. That is not ok (name should be used according to PEP8)
+      The code is here:
+      ```{code}```
       Please start your answer with 'good' if everything is allright or 'bad' if anything is wrong.
 
 llms:
@@ -132,7 +123,7 @@ llm_template: |
   Please check the code for errors.
   Start your answer with "good" if there are no problems, with "bad" otherwise.
   Please provide a brief description of the problems afterwards.
-  The code is here: <<<{code}>>>.
+  The code is here: ```{code}```.
   (Start your answer with "good" if there are no problems, with "bad" otherwise.)
 
 llm_length_limit: 10000

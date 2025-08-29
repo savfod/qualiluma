@@ -21,23 +21,16 @@ class CaseConsistencyChecker(SimpleCheckerABC):
             return FileCheckResult(was_checked=False)
 
         code_numbered: str = _load_numbered(file_path)
-        prompt_detect: str = checker_config["prompt_detect_variables"].format(
-            code=code_numbered
-        )
-        list_variables = self.llm_client(prompt_detect)
-        if DEBUG:
-            print("prompt_detect:", prompt_detect)
-            print("list_variables:", list_variables)
 
         prompt_check: str = checker_config["prompt_check_case"].format(
-            variables=list_variables
+            code=code_numbered,
         )
         result: str = self.llm_client(prompt_check)
 
-        if result.lstrip(".").lower().startswith("good"):
+        if self._starts_with(result, "good"):
             return FileCheckResult(was_checked=True, issues=[])
 
-        elif result.lstrip(".").lower().startswith("bad"):
+        elif self._starts_with(result, "bad"):
             return FileCheckResult(
                 was_checked=True,
                 issues=[
@@ -60,3 +53,6 @@ class CaseConsistencyChecker(SimpleCheckerABC):
                     )
                 ],
             )
+
+    def _starts_with(self, string: str, prefix: str) -> bool:
+        return string.lstrip(".").lower().startswith(prefix)
