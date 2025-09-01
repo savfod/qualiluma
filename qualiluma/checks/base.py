@@ -7,6 +7,8 @@ from enum import IntEnum
 from pathlib import Path
 from typing import Any, Callable
 
+import tqdm
+
 from ..config import Config
 
 
@@ -74,20 +76,27 @@ class CheckerABC(ABC):
         results: dict[Path, FileCheckResult] = {}
 
         # todo: follow_symlink = True with saving to avoid recursion
-        for dirpath, dirnames, filenames in os.walk(
-            directory_path, topdown=True, onerror=None, followlinks=False
-        ):
-            dirnames[:] = [d for d in dirnames if self._filter_dir(Path(dirpath) / d)]
-            for file_name in filenames:
-                file_path = Path(dirpath) / file_name
-                if file_path.is_file() and self._filter_file(file_path):
-                    try:
-                        results[file_path] = self._check_file_impl(file_path)
-                    except Exception as e:
-                        print(f"Error checking {file_path}: {e}", file=sys.stderr)
-                        results[file_path] = FileCheckResult(
-                            was_checked=False, issues=[]
+        with tqdm.tqdm() as pbar:
+            for dirpath, dirnames, filenames in os.walk(
+                directory_path, topdown=True, onerror=None, followlinks=False
+            ):
+                dirnames[:] = [
+                    d for d in dirnames if self._filter_dir(Path(dirpath) / d)
+                ]
+                for file_name in filenames:
+                    file_path = Path(dirpath) / file_name
+                    if file_path.is_file() and self._filter_file(file_path):
+                        pbar.set_description_str(
+                            f"{self.get_name()}: checking file {file_name}"
                         )
+                        try:
+                            results[file_path] = self._check_file_impl(file_path)
+                        except Exception as e:
+                            print(f"Error checking {file_path}: {e}", file=sys.stderr)
+                            results[file_path] = FileCheckResult(
+                                was_checked=False, issues=[]
+                            )
+                        pbar.update(1)
 
         return results
 
