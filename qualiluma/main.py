@@ -13,11 +13,11 @@ from .checks import (
     CaseConsistencyChecker,
     CheckerABC,
     FunctionAdapter,
+    LLMBasedChecker,
     SimpleCheckerAdapter,
     VariablesConsistencyChecker,
     check_trailing_newline,
 )
-from .checks.llm_based_checker import LLMBasedChecker
 from .config import Config
 
 
