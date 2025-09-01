@@ -10,6 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from .checks import (
+    CaseConsistencyChecker,
     CheckerABC,
     FunctionAdapter,
     SimpleCheckerAdapter,
@@ -33,6 +34,7 @@ def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerA
         FunctionAdapter(config, check_trailing_newline, "trailing newline"),
         SimpleCheckerAdapter(config, LLMBasedChecker()),
         SimpleCheckerAdapter(config, VariablesConsistencyChecker()),
+        SimpleCheckerAdapter(config, CaseConsistencyChecker()),
     ]
 
     if filter_checkers:
