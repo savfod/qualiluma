@@ -13,13 +13,10 @@ LENGTH_LIMIT: int = CONFIG["llm_length_limit"]
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
-class LLMBasedChecker(SimpleCheckerABC):
-    """LLM-based checker implemented in the same style as VariablesConsistencyChecker.
+class LLMSimpleChecker(SimpleCheckerABC):
+    """LLM-based simple checker implemented in the same style as VariablesConsistencyChecker.
 
-    Reads a prompt from the `checker_config` (key: `prompt`) and sends the file
-    contents formatted into that prompt to the LLM client obtained via
-    `get_llm_client()`. Interprets responses starting with 'good' as pass,
-    'bad' as failure, otherwise returns was_checked=False with a warning.
+    Gets a prompt from config, and processes file-wise.
     """
 
     def __init__(self):
@@ -62,7 +59,7 @@ class LLMBasedChecker(SimpleCheckerABC):
                 was_checked=True,
                 issues=[
                     FileIssue(
-                        check_name=checker_config.get("check_name", "LLMBasedChecker"),
+                        check_name=checker_config.get("check_name", "LLMSimpleChecker"),
                         message=f"LLM found issues: {result}",
                         severity=Severity.ERROR,
                     )
@@ -77,7 +74,7 @@ class LLMBasedChecker(SimpleCheckerABC):
                 was_checked=False,
                 issues=[
                     FileIssue(
-                        check_name=checker_config.get("check_name", "LLMBasedChecker"),
+                        check_name=checker_config.get("check_name", "LLMSimpleChecker"),
                         message=f"Unknown response format: {result}",
                         severity=Severity.WARNING,
                     )

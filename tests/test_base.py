@@ -1,14 +1,14 @@
 from pathlib import Path
 
 from qualiluma.checks.base import SimpleCheckerAdapter
-from qualiluma.checks.llm_based_checker import LLMBasedChecker
+from qualiluma.checks.llm_based_checker import LLMSimpleChecker
 from qualiluma.config import Config
 
 
 class TestCheckers:
     def test_simple_checker_adapter(self):
         config = Config()
-        checker = LLMBasedChecker()
+        checker = LLMSimpleChecker()
         adapter = SimpleCheckerAdapter(
             config,
             checker,

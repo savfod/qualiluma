@@ -28,9 +28,14 @@ directories:
 
 # checker-specific extra configurations
 checkers_extra:
-  - name: "LLMCheckerDraft"
-    prompt: "Here could be some prompt"
-    check_name: "LLM draft check"
+  - name: "LLMSimpleChecker"
+    check_name: "LLM simple checker"
+    prompt: |
+      Please check the code for errors.
+      Start your answer with "good" if there are no problems, with "bad" otherwise.
+      Please provide a brief description of the problems afterwards.
+      The code is here: ```{code}```.
+      (Start your answer with "good" if there are no problems, with "bad" otherwise.)
 
   - name: "VariablesConsistencyChecker"
     prompt_detect_variables: |
@@ -118,12 +123,5 @@ available_extensions:
   - ".json"
   - ".md"
   - ".txt"
-
-llm_template: |
-  Please check the code for errors.
-  Start your answer with "good" if there are no problems, with "bad" otherwise.
-  Please provide a brief description of the problems afterwards.
-  The code is here: ```{code}```.
-  (Start your answer with "good" if there are no problems, with "bad" otherwise.)
 
 llm_length_limit: 10000

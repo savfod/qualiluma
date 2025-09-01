@@ -12,13 +12,13 @@ from .base import (
 )
 from .case_consistency import CaseConsistencyChecker
 from .endsline import check_trailing_newline, should_check_file
-from .llm_based_checker import LLMBasedChecker
+from .llm_based_checker import LLMSimpleChecker
 from .variable_consistency import VariablesConsistencyChecker
 
 __all__ = [
     "check_trailing_newline",
     "should_check_file",
-    "LLMBasedChecker",
+    "LLMSimpleChecker",
     "VariablesConsistencyChecker",
     "CaseConsistencyChecker",
     "CheckerABC",
