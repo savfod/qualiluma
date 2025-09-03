@@ -2,7 +2,11 @@ import os
 from pathlib import Path
 
 from ..util.llm import get_llm_client
-from .base import FileCheckResult, FileIssue, Severity, SimpleCheckerABC
+from .base import (
+    FileCheckResult,
+    FileCheckResultBuilder,
+    SimpleCheckerABC,
+)
 
 # TODO find better debug method. Maybe file logging.
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
@@ -28,8 +32,10 @@ class VariablesConsistencyChecker(SimpleCheckerABC):
 
     def _check_file(self, file_path: Path, checker_config: dict) -> FileCheckResult:
         """Check a single file for issues."""
+        file_res = FileCheckResultBuilder(checker_name="VariablesConsistencyChecker")
+
         if self.llm_client is None:
-            return FileCheckResult(was_checked=False)
+            return file_res.ambiguous("LLM client not initialized")
 
         code_numbered = _load_numbered(file_path)
         prompt_detect = checker_config["prompt_detect_variables"].format(
@@ -45,29 +51,11 @@ class VariablesConsistencyChecker(SimpleCheckerABC):
         )
         result = self.llm_client(prompt_check)
 
-        if result.lstrip(".").lower().startswith("good"):
-            return FileCheckResult(was_checked=True, issues=[])
-
-        elif result.lstrip(".").lower().startswith("bad"):
-            return FileCheckResult(
-                was_checked=True,
-                issues=[
-                    FileIssue(
-                        check_name="VariablesConsistencyChecker",
-                        message=f"Variables consistency check failed: {result}",
-                        severity=Severity.ERROR,
-                    )
-                ],
-            )
+        normalized = result.lstrip(".").lower()
+        if normalized.startswith("good"):
+            return file_res.passed()
+        elif normalized.startswith("bad"):
+            return file_res.failed(f"Variables consistency check failed: {result}")
         else:
             # unknown response format
-            return FileCheckResult(
-                was_checked=False,
-                issues=[
-                    FileIssue(
-                        check_name="VariablesConsistencyChecker",
-                        message=f"Unknown response format: {result}",
-                        severity=Severity.WARNING,
-                    )
-                ],
-            )
+            return file_res.ambiguous(f"Unknown response format: {result}")

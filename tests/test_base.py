@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from qualiluma.checks.base import SimpleCheckerAdapter
-from qualiluma.checks.llm_based_checker import LLMSimpleChecker
+from qualiluma.checks.llm_simple_checker import LLMSimpleChecker
 from qualiluma.config import Config
 
 
