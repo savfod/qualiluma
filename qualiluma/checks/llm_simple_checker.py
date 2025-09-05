@@ -11,7 +11,6 @@ from .base import (
 )
 
 CONFIG = _yaml_read(CONFIG_PATH)
-LENGTH_LIMIT: int = CONFIG["llm_length_limit"]
 
 # TODO: find a better debug method (file logger?).
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
@@ -43,7 +42,7 @@ class LLMSimpleChecker(SimpleCheckerABC):
         code = file_path.read_text()
 
         # Enforce length limit to avoid sending huge files to the LLM
-        if len(code) > LENGTH_LIMIT:
+        if len(code) > checker_config["length_limit"]:
             if DEBUG:
                 print("Code length exceeds the limit for LLM processing, ignoring.")
             return file_res.ambiguous(

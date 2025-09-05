@@ -36,6 +36,7 @@ checkers_extra:
       Please provide a brief description of the problems afterwards.
       The code is here: ```{code}```.
       (Start your answer with "good" if there are no problems, with "bad" otherwise.)
+    length_limit: 10000
     # todo: move to file_type in _check_file
     available_extensions:
       - ".py"
@@ -95,5 +96,3 @@ llms:
     # model: "gpt-4.1-mini"
     # max_tokens: 32_768
     # hm, what max_tokens should be reasonable?7
-
-llm_length_limit: 10000
