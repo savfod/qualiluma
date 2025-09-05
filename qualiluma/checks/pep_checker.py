@@ -36,7 +36,7 @@ class PepChecker(SimpleCheckerABC):
                 issues=[
                     FileIssue(
                         check_name="PepChecker",
-                        message=f"Case consistency check failed: {result}",
+                        message=f"PEP8 check failed: {result}",
                         severity=Severity.ERROR,
                     )
                 ],
