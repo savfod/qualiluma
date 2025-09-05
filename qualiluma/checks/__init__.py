@@ -10,7 +10,7 @@ from .base import (
     Severity,
     SimpleCheckerAdapter,
 )
-from .case_consistency import CaseConsistencyChecker
+from .case_consistency import PepChecker
 from .endsline import check_trailing_newline
 from .llm_simple_checker import LLMSimpleChecker
 from .variable_consistency import VariablesConsistencyChecker
@@ -19,7 +19,7 @@ __all__ = [
     "check_trailing_newline",
     "LLMSimpleChecker",
     "VariablesConsistencyChecker",
-    "CaseConsistencyChecker",
+    "PepChecker",
     "CheckerABC",
     "FileCheckResult",
     "FileIssue",

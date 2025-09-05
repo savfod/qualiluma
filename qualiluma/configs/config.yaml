@@ -75,7 +75,7 @@ checkers_extra:
       [[[{variables}]]]
       Please start your answer with 'good' if everything is allright or 'bad' if anything is wrong.
 
-  - name: "CaseConsistencyChecker"
+  - name: "PepChecker"
     prompt_check_case: |
       You are given a code in Python (if it's not Python, please ignore this check).
       Every line contains its number.

@@ -9,7 +9,7 @@ from .variable_consistency import _load_numbered
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
-class CaseConsistencyChecker(SimpleCheckerABC):
+class PepChecker(SimpleCheckerABC):
     """Checker for case consistency."""
 
     def __init__(self):
@@ -17,7 +17,7 @@ class CaseConsistencyChecker(SimpleCheckerABC):
 
     def _check_file(self, file_path: Path, checker_config: dict) -> FileCheckResult:
         """Check a single file for issues."""
-        file_res = FileCheckResultBuilder(checker_name="CaseConsistencyChecker")
+        file_res = FileCheckResultBuilder(checker_name="PepChecker")
 
         if self.llm_client is None:
             return file_res.ambiguous("LLM client not initialized")
@@ -35,9 +35,7 @@ class CaseConsistencyChecker(SimpleCheckerABC):
             return file_res.failed(f"Case consistency check failed: {result}")
 
         else:
-            return file_res.ambiguous(
-                f"Unknown response format: {result}"
-            )
+            return file_res.ambiguous(f"Unknown response format: {result}")
 
     def _starts_with(self, string: str, prefix: str) -> bool:
         return string.lstrip(".").lower().startswith(prefix)
