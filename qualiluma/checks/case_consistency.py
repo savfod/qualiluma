@@ -10,7 +10,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
 class PepChecker(SimpleCheckerABC):
-    """Checker for case consistency."""
+    """Checker for PEP 8 compliance."""
 
     def __init__(self):
         self.llm_client = get_llm_client()
