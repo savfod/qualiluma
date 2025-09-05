@@ -35,8 +35,8 @@ class CaseConsistencyChecker(SimpleCheckerABC):
             return file_res.failed(f"Case consistency check failed: {result}")
 
         else:
-            return file_res.failed(
-                f"Unknown response format: {result}", severity=Severity.WARNING
+            return file_res.ambiguous(
+                f"Unknown response format: {result}"
             )
 
     def _starts_with(self, string: str, prefix: str) -> bool:
