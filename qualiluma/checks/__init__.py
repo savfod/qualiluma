@@ -10,7 +10,7 @@ from .base import (
     Severity,
     SimpleCheckerAdapter,
 )
-from .case_consistency import PepChecker
+from .pep_checker import PepChecker
 from .endsline import check_trailing_newline
 from .llm_simple_checker import LLMSimpleChecker
 from .variable_consistency import VariablesConsistencyChecker
