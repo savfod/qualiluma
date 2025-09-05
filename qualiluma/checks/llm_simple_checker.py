@@ -11,7 +11,6 @@ from .base import (
 )
 
 CONFIG = _yaml_read(CONFIG_PATH)
-AVAILABLE_EXTENSIONS: list[str] = CONFIG["available_extensions"]
 LENGTH_LIMIT: int = CONFIG["llm_length_limit"]
 
 # TODO: find a better debug method (file logger?).
@@ -36,7 +35,7 @@ class LLMSimpleChecker(SimpleCheckerABC):
 
         # Skip unsupported extensions early
         # TODO: do on the wrapper level
-        if file_path.suffix not in AVAILABLE_EXTENSIONS:
+        if file_path.suffix not in checker_config["available_extensions"]:
             if DEBUG:
                 print(f"Skipping unsupported file type: {file_path.suffix}")
             return file_res.ambiguous(f"Unsupported file type {file_path.suffix}")
