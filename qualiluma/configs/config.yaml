@@ -94,36 +94,6 @@ llms:
 
     # model: "gpt-4.1-mini"
     # max_tokens: 32_768
-    # hm, what max_tokens should be reasonable?
-
-skip_extensions:
-  - ".pyo"
-  - ".pyc"
-  - ".pyd"
-  - ".so"
-  - ".dll"
-  - ".dylib"
-  - ".jpg"
-  - ".jpeg"
-  - ".png"
-  - ".gif"
-  - ".bmp"
-  - ".ico"
-  - ".pdf"
-  - ".zip"
-  - ".tar"
-  - ".gz"
-  - ".bz2"
-  - ".xz"
-  - ".exe"
-  - ".bin"
-  - ".dat"
-  - ".db"
-  - ".sqlite"
-  - ".woff"
-  - ".woff2"
-  - ".ttf"
-  - ".otf"
-  - ".eot"
+    # hm, what max_tokens should be reasonable?7
 
 llm_length_limit: 10000
