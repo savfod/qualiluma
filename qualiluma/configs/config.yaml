@@ -95,4 +95,4 @@ llms:
 
     # model: "gpt-4.1-mini"
     # max_tokens: 32_768
-    # hm, what max_tokens should be reasonable?7
+    # hm, what max_tokens should be reasonable?
