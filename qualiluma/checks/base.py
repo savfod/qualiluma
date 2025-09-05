@@ -38,6 +38,54 @@ class FileCheckResult:
     issues: list[FileIssue] = field(default_factory=list)
 
 
+class FileCheckResultBuilder:
+    """Simplify building file check result in simpler scenaria."""
+
+    def __init__(self, checker_name: str):
+        """Save checker name for results
+
+        Args:
+            checker_name (str): The name of the checker.
+        """
+        self.checker_name = checker_name
+
+    def skipped(self, _reason: str | None = None) -> FileCheckResult:
+        """File was skipped and that was intended."""
+        if _reason is not None:
+            print("File skipping reason:", _reason)  # todo: debug output
+        return FileCheckResult(was_checked=False, issues=[])
+
+    def passed(self) -> FileCheckResult:
+        return FileCheckResult(was_checked=True, issues=[])
+
+    def failed(
+        self, message: str | None = None, severity: Severity = Severity.ERROR
+    ) -> FileCheckResult:
+        return FileCheckResult(
+            was_checked=True,
+            issues=[
+                FileIssue(
+                    check_name=self.checker_name,
+                    message=message if message is not None else "Check failed",
+                    severity=severity,
+                )
+            ],
+        )
+
+    def ambiguous(
+        self, reason: str, severity: Severity = Severity.INFO
+    ) -> FileCheckResult:
+        """No clear result and that was not intended"""
+        return FileCheckResult(
+            was_checked=True,
+            issues=[
+                FileIssue(
+                    check_name=self.checker_name, message=reason, severity=severity
+                )
+            ],
+        )
+
+
 class CheckerABC(ABC):
     def __init__(self, config: Config):
         self.config = config
