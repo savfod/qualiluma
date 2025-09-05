@@ -9,8 +9,8 @@ from .variable_consistency import _load_numbered
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
-class CaseConsistencyChecker(SimpleCheckerABC):
-    """Checker for case consistency."""
+class PepChecker(SimpleCheckerABC):
+    """Checker for PEP 8 compliance."""
 
     def __init__(self):
         self.llm_client = get_llm_client()
@@ -35,8 +35,8 @@ class CaseConsistencyChecker(SimpleCheckerABC):
                 was_checked=True,
                 issues=[
                     FileIssue(
-                        check_name="CaseConsistencyChecker",
-                        message=f"Case consistency check failed: {result}",
+                        check_name="PepChecker",
+                        message=f"PEP8 check failed: {result}",
                         severity=Severity.ERROR,
                     )
                 ],
@@ -47,7 +47,7 @@ class CaseConsistencyChecker(SimpleCheckerABC):
                 was_checked=False,
                 issues=[
                     FileIssue(
-                        check_name="CaseConsistencyChecker",
+                        check_name="PepChecker",
                         message=f"Unknown response format: {result}",
                         severity=Severity.WARNING,
                     )
