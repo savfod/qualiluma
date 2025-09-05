@@ -9,7 +9,7 @@ from .variable_consistency import _load_numbered
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
-class CaseConsistencyChecker(SimpleCheckerABC):
+class PepChecker(SimpleCheckerABC):
     """Checker for case consistency."""
 
     def __init__(self):
@@ -35,7 +35,7 @@ class CaseConsistencyChecker(SimpleCheckerABC):
                 was_checked=True,
                 issues=[
                     FileIssue(
-                        check_name="CaseConsistencyChecker",
+                        check_name="PepChecker",
                         message=f"Case consistency check failed: {result}",
                         severity=Severity.ERROR,
                     )
@@ -47,7 +47,7 @@ class CaseConsistencyChecker(SimpleCheckerABC):
                 was_checked=False,
                 issues=[
                     FileIssue(
-                        check_name="CaseConsistencyChecker",
+                        check_name="PepChecker",
                         message=f"Unknown response format: {result}",
                         severity=Severity.WARNING,
                     )
