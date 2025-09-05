@@ -24,7 +24,7 @@ class myclass:
         self.Value = newValue
 
 
-normal_variable = "This is some text, i don't know about what, but it exists and it's existance makes it valuable"
+normal_variable = "This is some text, I don't know about what, but it exists and it's existence makes it valuable"
 
 
 def normal_function(param):
