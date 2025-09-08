@@ -51,8 +51,6 @@ class FileCheckResultBuilder:
 
     def skipped(self, _reason: str | None = None) -> FileCheckResult:
         """File was skipped and that was intended."""
-        if _reason is not None:
-            print("File skipping reason:", _reason)  # todo: debug output
         return FileCheckResult(was_checked=False, issues=[])
 
     def passed(self) -> FileCheckResult:
