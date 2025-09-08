@@ -39,7 +39,7 @@ class FileCheckResult:
 
 
 class FileCheckResultBuilder:
-    """Simplify building file check result in simpler scenaria."""
+    """Simplify building file check result in simpler scenarios."""
 
     def __init__(self, checker_name: str):
         """Save checker name for results
