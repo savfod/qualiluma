@@ -13,11 +13,11 @@ from .checks import (
     CaseConsistencyChecker,
     CheckerABC,
     FunctionAdapter,
+    LLMSimpleChecker,
     SimpleCheckerAdapter,
     VariablesConsistencyChecker,
     check_trailing_newline,
 )
-from .checks.llm_based_checker import LLMBasedChecker
 from .config import Config
 
 
@@ -32,7 +32,7 @@ def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerA
     """
     checkers = [
         FunctionAdapter(config, check_trailing_newline, "trailing newline"),
-        SimpleCheckerAdapter(config, LLMBasedChecker()),
+        SimpleCheckerAdapter(config, LLMSimpleChecker()),
         SimpleCheckerAdapter(config, VariablesConsistencyChecker()),
         SimpleCheckerAdapter(config, CaseConsistencyChecker()),
     ]
