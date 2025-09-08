@@ -75,11 +75,11 @@ checkers_extra:
       [[[{variables}]]]
       Please start your answer with 'good' if everything is allright or 'bad' if anything is wrong.
 
-  - name: "CaseConsistencyChecker"
+  - name: "PepChecker"
     prompt_check_case: |
       You are given a code in Python (if it's not Python, please ignore this check).
       Every line contains its number.
-      Please check if the case of variable names is used according to PEP8.
+      Please check if the code is used according to PEP8.
       Write 'good' if it is used according to PEP8, 'bad' otherwise. Provide description.
       Good example: 'VARIABLE_A = 5, variable_b = some_function_result(), _variable_c = some_private_value'. That is ok (variable case is consistent)
       Bad example: 'variable_a = 5, Variable_B = some_function_result(), variable_c = some_private_value'. That is not ok (names should be used according to PEP8)
