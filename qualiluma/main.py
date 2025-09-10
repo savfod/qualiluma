@@ -19,6 +19,9 @@ from .checks import (
     check_trailing_newline,
 )
 from .config import Config
+from .util import get_logger, init_logging
+
+logger = get_logger(__name__)
 
 
 def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerABC]:
@@ -178,6 +181,7 @@ def check(
 def main() -> int:
     """Main entry point for the script."""
     args = parse_args()
+    init_logging("qualiluma.log")
     return check(args.path, args.checkers, args.verbose)
 
 
