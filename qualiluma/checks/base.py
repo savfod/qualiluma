@@ -1,6 +1,5 @@
 # checks/base.py
 import os
-import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import IntEnum
@@ -10,6 +9,9 @@ from typing import Any, Callable
 import tqdm
 
 from ..config import Config
+from ..util import get_logger
+
+logger = get_logger(__name__)
 
 
 class Severity(IntEnum):
@@ -138,7 +140,7 @@ class CheckerABC(ABC):
                         try:
                             results[file_path] = self._check_file_impl(file_path)
                         except Exception as e:
-                            print(f"Error checking {file_path}: {e}", file=sys.stderr)
+                            logger.warning(f"Failed to check {file_path}: {e}")
                             results[file_path] = FileCheckResult(
                                 was_checked=False, issues=[]
                             )
