@@ -107,14 +107,14 @@ def check(
         config = Config()
 
     if not target_path.exists():
-        print(f"Error: Path '{target_path}' does not exist", file=sys.stderr)
+        logger.error(f"Path '{target_path}' does not exist")
         return 1
 
     checkers = build_checkers(config, filter_checkers)
 
     if target_path.is_file():
         # Check single file
-        print(f"Checking file: {target_path}")
+        logger.info(f"Checking file: {target_path}")
         results = {
             checker.get_name(): {target_path: checker.check_file(target_path)}
             for checker in checkers
@@ -122,54 +122,52 @@ def check(
 
     elif target_path.is_dir():
         # Check directory recursively
-        print(f"Checking files in: {target_path}")
+        logger.info(f"Checking files in: {target_path}")
         results = {
             checker.get_name(): checker.check_directory(target_path)
             for checker in checkers
         }
 
     else:
-        print(
-            f"Error: '{target_path}' is neither a file nor a directory", file=sys.stderr
-        )
+        logger.error(f"Error: '{target_path}' is neither a file nor a directory")
         sys.exit(1)
 
     # visualize results:
     problems_by_checker = defaultdict(list)
     for checker_name, file_status in results.items():
-        print("=" * 80)
-        print(f"Checker {checker_name} running result:")
-        print()
+        # todo: switch to multiline log messages
+        logger.info("=" * 80)
+        logger.info(f"Checker {checker_name} running result:")
+        logger.info("")
         for file_path, status in file_status.items():
             if not status.was_checked:
-                if verbose:
-                    print(f"... {file_path} - not checked")
+                logger.debug(f"... {file_path} - not checked")
 
             else:
                 if len(status.issues) > 0:
                     problems_by_checker[checker_name].append(file_path)
-                    print(f"❌ {file_path} - issues found:")
+                    logger.info(f"❌ {file_path} - issues found:")
                     for issue in status.issues:
                         err_msg = (
                             f"    - {issue.severity.name}:"
                             f" {issue.check_name} - {issue.message}"
                         )
-                        print(err_msg)
-                    print()
+                        logger.info(err_msg)
+                    logger.info("")
                 else:
                     if verbose:
-                        print(f"✅ {file_path} - no issues found")
-        print()
+                        logger.info(f"✅ {file_path} - no issues found")
+        logger.info("")
 
-    print("=" * 80)
+    logger.info("=" * 80)
     errors_detected = len(problems_by_checker) > 0
     msg = "❌ Errors found" if errors_detected else "✅ No errors found"
-    print(f"Check status: '{msg}'")
+    logger.info(f"Check status: '{msg}'")
     for checker_name in results:
         if checker_name not in problems_by_checker:
-            print(f"  - ✅ No errors found by '{checker_name}'")
+            logger.info(f"  - ✅ No errors found by '{checker_name}'")
         else:
-            print(
+            logger.info(
                 "  - ❌ Problems with"
                 f" {len(problems_by_checker[checker_name])}"
                 f" files found by '{checker_name}'."
