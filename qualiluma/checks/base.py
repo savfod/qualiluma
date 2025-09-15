@@ -77,7 +77,7 @@ class FileCheckResultBuilder:
     ) -> FileCheckResult:
         """No clear result and that was not intended"""
         return FileCheckResult(
-            was_checked=True,
+            was_checked=False,
             issues=[
                 FileIssue(
                     check_name=self.checker_name, message=reason, severity=severity
