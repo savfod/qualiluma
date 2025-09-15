@@ -232,7 +232,7 @@ def main() -> int:
     args = parse_args()
     # Set console log level based on verbose flag
     console_level = "DEBUG" if args.verbose else "INFO"
-    init_logging("qualiluma.log", console_level=console_level)
+    init_logging("qualiluma.log", console_log_level=console_level)
     return check(args.path, args.checkers, args.verbose)
 
 
