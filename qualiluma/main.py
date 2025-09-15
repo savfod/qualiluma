@@ -230,7 +230,9 @@ def check(
 def main() -> int:
     """Main entry point for the script."""
     args = parse_args()
-    init_logging("qualiluma.log")
+    # Set console log level based on verbose flag
+    console_level = "DEBUG" if args.verbose else "INFO"
+    init_logging("qualiluma.log", console_level=console_level)
     return check(args.path, args.checkers, args.verbose)
 
 
