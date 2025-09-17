@@ -11,6 +11,7 @@ from pathlib import Path
 
 from .checks import (
     CheckerABC,
+    FileCheckResult,
     FunctionAdapter,
     LLMSimpleChecker,
     PepChecker,
@@ -19,6 +20,10 @@ from .checks import (
     check_trailing_newline,
 )
 from .config import Config
+from .util import get_logger, init_logging
+
+logger = get_logger(__name__)
+results_logger = get_logger(__name__, results_mode=True)  # for cleaner output
 
 
 def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerABC]:
@@ -83,6 +88,115 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def check_path(
+    target_path: Path, checkers: list[CheckerABC]
+) -> dict[str, dict[Path, FileCheckResult]]:
+    """Calculate the results of the code quality checks.
+
+    Args:
+        target_path: The path to the file or directory to check.
+        checkers: A list of code quality checkers to apply.
+
+    Returns:
+        A dictionary mapping checker names to file paths and their check status.
+    """
+    if target_path.is_file():
+        # Check single file
+        logger.info(f"Checking file: {target_path}")
+        results = {
+            checker.get_name(): {target_path: checker.check_file(target_path)}
+            for checker in checkers
+        }
+
+    elif target_path.is_dir():
+        # Check directory recursively
+        logger.info(f"Checking files in: {target_path}")
+        results = {
+            checker.get_name(): checker.check_directory(target_path)
+            for checker in checkers
+        }
+
+    else:
+        logger.error(f"Error: '{target_path}' is neither a file nor a directory")
+        sys.exit(1)
+
+    return results
+
+
+def contains_errors(results: dict[str, dict[Path, FileCheckResult]]) -> bool:
+    """Check if any errors are in the checks results.
+
+    Args:
+        results: A dictionary mapping checker names to file paths and their check status.
+
+    Returns:
+        True if errors were detected, False otherwise.
+    """
+    for _checker_name, file_status in results.items():
+        for _file_path, status in file_status.items():
+            if status.was_checked and len(status.issues) > 0:
+                return True
+    return False
+
+
+def visualize_results(results: dict[str, dict[Path, FileCheckResult]]) -> None:
+    """Visualize the results of the code quality checks.
+
+    Args:
+        results: A dictionary mapping checker names to file paths and their check status.
+    """
+    problems_by_checker = defaultdict(list)
+    for checker_name, file_status in results.items():
+        results_logger.info("")
+        results_logger.info(f" Checker {checker_name} ".center(80, "="))
+        for file_path, status in file_status.items():
+            if not status.was_checked:
+                if len(status.issues) == 0:
+                    results_logger.debug(f"⏭️  {file_path} - not checked")
+                else:
+                    results_logger.warning(
+                        f"⚠️  {file_path} - not checked: {status.issues[0].message}"
+                    )
+                    if len(status.issues) > 1:
+                        results_logger.warning(
+                            f"    (and {len(status.issues)-1} more issues)"
+                        )
+
+            else:
+                if len(status.issues) > 0:
+                    problems_by_checker[checker_name].append(file_path)
+                    results_logger.info(f"❌ {file_path} - issues found:")
+                    for issue in status.issues:
+                        err_msg = (
+                            f"    - {issue.severity.name}:"
+                            f" {issue.check_name} - {issue.message}"
+                        )
+                        results_logger.info(err_msg)
+                    results_logger.info("")
+                else:
+                    results_logger.info(f"✅ {file_path} - no issues found")
+
+    errs = contains_errors(results)
+    # sanity check
+    if errs != (len(problems_by_checker) > 0):
+        logger.error("Inconsistent error detection state!")
+
+    msg = "❌ Errors found" if errs else "✅ No errors found"
+    results_logger.info("")
+    results_logger.info(" Summary ".center(80, "="))
+    results_logger.info(f"Check status: '{msg}'")
+    for checker_name in results:
+        if checker_name not in problems_by_checker:
+            results_logger.info(f"  - ✅ No issues found by '{checker_name}'")
+        else:
+            results_logger.info(
+                "  - ❌ Found issues in"
+                f" {len(problems_by_checker[checker_name])}"
+                f" files by '{checker_name}'."
+            )
+    results_logger.info("")
+
+
 def check(
     target_path: Path,
     filter_checkers: str | None = None,
@@ -104,80 +218,21 @@ def check(
         config = Config()
 
     if not target_path.exists():
-        print(f"Error: Path '{target_path}' does not exist", file=sys.stderr)
+        logger.error(f"Path '{target_path}' does not exist")
         return 1
 
     checkers = build_checkers(config, filter_checkers)
-
-    if target_path.is_file():
-        # Check single file
-        print(f"Checking file: {target_path}")
-        results = {
-            checker.get_name(): {target_path: checker.check_file(target_path)}
-            for checker in checkers
-        }
-
-    elif target_path.is_dir():
-        # Check directory recursively
-        print(f"Checking files in: {target_path}")
-        results = {
-            checker.get_name(): checker.check_directory(target_path)
-            for checker in checkers
-        }
-
-    else:
-        print(
-            f"Error: '{target_path}' is neither a file nor a directory", file=sys.stderr
-        )
-        sys.exit(1)
-
-    # visualize results:
-    problems_by_checker = defaultdict(list)
-    for checker_name, file_status in results.items():
-        print("=" * 80)
-        print(f"Checker {checker_name} running result:")
-        print()
-        for file_path, status in file_status.items():
-            if not status.was_checked:
-                if verbose:
-                    print(f"... {file_path} - not checked")
-
-            else:
-                if len(status.issues) > 0:
-                    problems_by_checker[checker_name].append(file_path)
-                    print(f"❌ {file_path} - issues found:")
-                    for issue in status.issues:
-                        err_msg = (
-                            f"    - {issue.severity.name}:"
-                            f" {issue.check_name} - {issue.message}"
-                        )
-                        print(err_msg)
-                    print()
-                else:
-                    if verbose:
-                        print(f"✅ {file_path} - no issues found")
-        print()
-
-    print("=" * 80)
-    errors_detected = len(problems_by_checker) > 0
-    msg = "❌ Errors found" if errors_detected else "✅ No errors found"
-    print(f"Check status: '{msg}'")
-    for checker_name in results:
-        if checker_name not in problems_by_checker:
-            print(f"  - ✅ No errors found by '{checker_name}'")
-        else:
-            print(
-                "  - ❌ Problems with"
-                f" {len(problems_by_checker[checker_name])}"
-                f" files found by '{checker_name}'."
-            )
-
-    return int(errors_detected)
+    check_results = check_path(target_path, checkers)
+    visualize_results(check_results)
+    return int(contains_errors(check_results))
 
 
 def main() -> int:
     """Main entry point for the script."""
     args = parse_args()
+    # Set console log level based on verbose flag
+    console_level = "DEBUG" if args.verbose else "INFO"
+    init_logging("qualiluma.log", console_log_level=console_level)
     return check(args.path, args.checkers, args.verbose)
 
 
