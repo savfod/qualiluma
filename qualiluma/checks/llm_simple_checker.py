@@ -20,8 +20,8 @@ class LLMSimpleChecker(SimpleCheckerABC):
     Gets a prompt from config, and processes file-wise.
     """
 
-    def __init__(self):
-        self.llm_client = get_llm_client()
+    def __init__(self, thorough: bool = False):
+        self.llm_client = get_llm_client("fast" if not thorough else "thorough")
 
     def _check_file(self, file_path: Path, checker_config: dict) -> FileCheckResult:
         # If there's no initialized LLM client, indicate the file wasn't checked
