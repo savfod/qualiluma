@@ -41,7 +41,7 @@ class LLMClient:
             warnings.warn(
                 "OPENAI_API_KEY is not set. Please set it to use the LLM checker."
             )
-            return None
+            return
 
         self.client = ChatOpenAI(
             model=self.llm_config.get("model"),

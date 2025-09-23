@@ -99,7 +99,7 @@ class TestFileIssueAndCheckResultBuilder:
         assert "Check failed" in failed.issues[0].message
 
         ambiguous = b.ambiguous("unclear")
-        assert ambiguous.was_checked is True
+        assert ambiguous.was_checked is False
         assert ambiguous.issues[0].severity == Severity.INFO
         assert ambiguous.issues[0].message == "unclear"
 

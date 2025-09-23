@@ -43,6 +43,11 @@ class VariablesConsistencyChecker(SimpleCheckerABC):
         logger.debug(f"prompt_detect: {prompt_detect}")
         logger.debug(f"list_variables: {list_variables}")
 
+        if len(list_variables.strip()) == 0:
+            return file_res.ambiguous(
+                "No variables detected"
+            )  # no variables found, strange
+
         prompt_check = checker_config["prompt_check_consistency"].format(
             variables=list_variables
         )
