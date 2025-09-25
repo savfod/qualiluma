@@ -26,7 +26,7 @@ results_logger = get_logger(__name__, results_mode=True)  # for cleaner output
 
 
 def build_checkers(
-    config: Config, filter_checkers: str | None, thorough: bool
+    config: Config, filter_checkers: str | None = None, thorough: bool = False
 ) -> list[CheckerABC]:
     """Build a list of code quality checks to perform.
     Args:
@@ -117,17 +117,14 @@ def check_path(
             for checker in checkers
         }
 
-    elif target_path.is_dir():
+    else:
+        assert target_path.is_dir(), "Target path is neither file nor directory"
         # Check directory recursively
         logger.info(f"Checking files in: {target_path}")
         results = {
             checker.get_name(): checker.check_directory(target_path)
             for checker in checkers
         }
-
-    else:
-        logger.error(f"Error: '{target_path}' is neither a file nor a directory")
-        sys.exit(1)
 
     return results
 
@@ -248,4 +245,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main())  # pragma: no cover

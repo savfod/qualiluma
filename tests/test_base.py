@@ -18,6 +18,7 @@ from qualiluma.util import Config
 
 
 class TestSimpleCheckerAdapter:
+    @pytest.mark.slow
     def test_real_checker(self):
         config = Config()
         checker = LLMSimpleChecker()

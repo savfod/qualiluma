@@ -1,11 +1,16 @@
 """Simple tests for the LLM module"""
 
+import pytest
+
 from qualiluma.util.llm import get_llm_client
 
 
+@pytest.mark.slow
 def test_get_llm_client_smoke():
     assert get_llm_client("abcd") is None
     assert get_llm_client("fast") is not None
+
+    # call the client to ensure it works
     assert isinstance(get_llm_client("fast")("Hello"), str)
 
 
@@ -26,7 +31,7 @@ def test_get_llm_client(monkeypatch):
     assert get_llm_client("some_true") is some_true
 
     monkeypatch.setattr("qualiluma.util.llm.LLMClient", MockClient(False))
-    assert get_llm_client("default") is None
+    assert get_llm_client("abc") is None
 
     monkeypatch.setattr("qualiluma.util.llm.LLMClient", MockClient(True))
-    assert get_llm_client("default") is not None
+    assert get_llm_client("abc") is not None
