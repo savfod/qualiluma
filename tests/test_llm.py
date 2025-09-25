@@ -5,8 +5,8 @@ from qualiluma.util.llm import get_llm_client
 
 def test_get_llm_client_smoke():
     assert get_llm_client("abcd") is None
-    assert get_llm_client("default") is not None
-    assert isinstance(get_llm_client("default")("Hello"), str)
+    assert get_llm_client("fast") is not None
+    assert isinstance(get_llm_client("fast")("Hello"), str)
 
 
 def MockClient(is_initialized):
