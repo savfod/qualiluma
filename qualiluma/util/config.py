@@ -3,7 +3,7 @@ from typing import Any
 
 import yaml
 
-CONFIG_PATH = Path(__file__).parent / "configs" / "config.yaml"
+CONFIG_PATH = Path(__file__).parents[1] / "conf" / "config.yaml"
 
 
 def _yaml_read(file_path: Path) -> dict[Any, Any]:

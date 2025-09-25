@@ -8,7 +8,7 @@ from typing import Any
 import dotenv
 from langchain_openai import ChatOpenAI
 
-from ..config import CONFIG_PATH, _yaml_read
+from ..util.config import CONFIG_PATH, _yaml_read
 from .logs import get_logger
 
 CONFIG = _yaml_read(CONFIG_PATH)

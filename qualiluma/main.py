@@ -19,8 +19,7 @@ from .checks import (
     VariablesConsistencyChecker,
     check_trailing_newline,
 )
-from .config import Config
-from .util import get_logger, init_logging
+from .util import Config, get_logger, init_logging
 
 logger = get_logger(__name__)
 results_logger = get_logger(__name__, results_mode=True)  # for cleaner output

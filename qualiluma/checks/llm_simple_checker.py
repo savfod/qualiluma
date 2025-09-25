@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from ..config import CONFIG_PATH, _yaml_read
 from ..util import get_llm_client, get_logger
+from ..util.config import CONFIG_PATH, _yaml_read
 from .base import (
     FileCheckResult,
     FileCheckResultBuilder,
