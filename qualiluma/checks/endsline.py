@@ -2,8 +2,11 @@
 End-of-line checking functionality for Qualiluma.
 """
 
-import sys
 from pathlib import Path
+
+from ..util import get_logger
+
+logger = get_logger(__name__)
 
 
 def check_trailing_newline(file_path: Path) -> bool:
@@ -23,6 +26,7 @@ def check_trailing_newline(file_path: Path) -> bool:
             f.seek(-1, 2)
             last_char = f.read(1)
             return last_char == b"\n"
+
     except (IOError, OSError) as e:
-        print(f"Error reading file {file_path}: {e}", file=sys.stderr)
+        logger.error(f"Error reading file {file_path}: {e}")
         return False

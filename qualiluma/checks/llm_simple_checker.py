@@ -1,8 +1,7 @@
-import os
 from pathlib import Path
 
 from ..config import CONFIG_PATH, _yaml_read
-from ..util.llm import get_llm_client
+from ..util import get_llm_client, get_logger
 from .base import (
     FileCheckResult,
     FileCheckResultBuilder,
@@ -12,8 +11,7 @@ from .base import (
 
 CONFIG = _yaml_read(CONFIG_PATH)
 
-# TODO: find a better debug method (file logger?).
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+logger = get_logger(__name__)
 
 
 class LLMSimpleChecker(SimpleCheckerABC):
@@ -35,16 +33,16 @@ class LLMSimpleChecker(SimpleCheckerABC):
         # Skip unsupported extensions early
         # TODO: do on the wrapper level
         if file_path.suffix not in checker_config["available_extensions"]:
-            if DEBUG:
-                print(f"Skipping unsupported file type: {file_path.suffix}")
+            logger.debug(f"Skipping unsupported file type: {file_path.suffix}")
             return file_res.ambiguous(f"Unsupported file type {file_path.suffix}")
 
         code = file_path.read_text()
 
         # Enforce length limit to avoid sending huge files to the LLM
         if len(code) > checker_config["length_limit"]:
-            if DEBUG:
-                print("Code length exceeds the limit for LLM processing, ignoring.")
+            logger.warning(
+                "Code length exceeds the limit for LLM processing, ignoring."
+            )
             return file_res.ambiguous(
                 "Code length exceeds the limit for LLM processing"
             )
@@ -64,8 +62,7 @@ class LLMSimpleChecker(SimpleCheckerABC):
         elif normalized.startswith("bad"):
             return file_res.failed(f"LLM found issues: {result}")
         else:
-            if DEBUG:
-                print("Ambiguous LLM result:", result[:200])
+            logger.warning(f"Ambiguous LLM result: {result[:200]}")
 
             # Unknown response format
             return file_res.ambiguous(
