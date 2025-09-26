@@ -26,20 +26,23 @@ logger = get_logger(__name__)
 results_logger = get_logger(__name__, results_mode=True)  # for cleaner output
 
 
-def build_checkers(config: Config, filter_checkers: str | None) -> list[CheckerABC]:
+def build_checkers(
+    config: Config, filter_checkers: str | None, thorough: bool
+) -> list[CheckerABC]:
     """Build a list of code quality checks to perform.
     Args:
         config: The configuration object containing settings for the checkers.
         filter_checkers: comma separated list of checkers to run if provided.
+        thorough: Whether to use more thorough (but slower) checks.
 
     Returns:
         A list of code quality checkers.
     """
     checkers = [
         FunctionAdapter(config, check_trailing_newline, "trailing newline"),
-        SimpleCheckerAdapter(config, LLMSimpleChecker()),
-        SimpleCheckerAdapter(config, VariablesConsistencyChecker()),
-        SimpleCheckerAdapter(config, PepChecker()),
+        SimpleCheckerAdapter(config, LLMSimpleChecker(thorough)),
+        SimpleCheckerAdapter(config, VariablesConsistencyChecker(thorough)),
+        SimpleCheckerAdapter(config, PepChecker(thorough)),
     ]
 
     if filter_checkers:
@@ -85,6 +88,13 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Comma-separated list of checkers to run (or all if not specified)",
     )
+    parser.add_argument(
+        "-t",
+        "--thorough",
+        action="store_true",
+        help="Use more thorough (but slower) checks",
+    )
+
     return parser.parse_args()
 
 
@@ -201,6 +211,7 @@ def check(
     target_path: Path,
     filter_checkers: str | None = None,
     verbose: bool = True,
+    thorough: bool = False,
     config: Config | None = None,
 ) -> int:
     """Check the specified file or directory for code quality issues.
@@ -209,6 +220,7 @@ def check(
         target_path: The path to the file or directory to check.
         filter_checkers: Comma-separated list of checkers to run (or no filtering).
         verbose: Whether to show verbose output.
+        thorough: Whether to use more thorough (but slower) checks.
         config: The configuration object containing settings for the checkers.
 
     Returns:
@@ -221,7 +233,7 @@ def check(
         logger.error(f"Path '{target_path}' does not exist")
         return 1
 
-    checkers = build_checkers(config, filter_checkers)
+    checkers = build_checkers(config, filter_checkers, thorough)
     check_results = check_path(target_path, checkers)
     visualize_results(check_results)
     return int(contains_errors(check_results))
@@ -233,7 +245,7 @@ def main() -> int:
     # Set console log level based on verbose flag
     console_level = "DEBUG" if args.verbose else "INFO"
     init_logging("qualiluma.log", console_log_level=console_level)
-    return check(args.path, args.checkers, args.verbose)
+    return check(args.path, args.checkers, args.verbose, args.thorough)
 
 
 if __name__ == "__main__":

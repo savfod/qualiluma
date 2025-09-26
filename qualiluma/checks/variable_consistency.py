@@ -25,8 +25,8 @@ def _load_numbered(file_path: Path) -> str:
 
 
 class VariablesConsistencyChecker(SimpleCheckerABC):
-    def __init__(self):
-        self.llm_client = get_llm_client()
+    def __init__(self, thorough: bool = False):
+        self.llm_client = get_llm_client("fast" if not thorough else "thorough")
 
     def _check_file(self, file_path: Path, checker_config: dict) -> FileCheckResult:
         """Check a single file for issues."""

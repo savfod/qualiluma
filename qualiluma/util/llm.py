@@ -9,9 +9,12 @@ import dotenv
 from langchain_openai import ChatOpenAI
 
 from ..config import CONFIG_PATH, _yaml_read
+from .logs import get_logger
 
 CONFIG = _yaml_read(CONFIG_PATH)
 _LLM_CLIENTS: dict[str, "LLMClient"] = {}
+
+logger = get_logger(__name__)
 
 
 class LLMClient:
@@ -60,6 +63,8 @@ class LLMClient:
         )
         res = response.content
         assert isinstance(res, str), f"LLM response is not a string: {type(res)}"
+        logger.debug(f"Usage: {response.usage_metadata}")
+
         return res.strip()
 
 
