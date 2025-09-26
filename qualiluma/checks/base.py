@@ -8,8 +8,7 @@ from typing import Any, Callable
 
 import tqdm
 
-from ..config import Config
-from ..util import get_logger
+from ..util import Config, get_logger
 
 logger = get_logger(__name__)
 

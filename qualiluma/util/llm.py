@@ -8,10 +8,13 @@ from typing import Any
 import dotenv
 from langchain_openai import ChatOpenAI
 
-from ..config import CONFIG_PATH, _yaml_read
+from ..util.config import CONFIG_PATH, _yaml_read
+from .logs import get_logger
 
 CONFIG = _yaml_read(CONFIG_PATH)
 _LLM_CLIENTS: dict[str, "LLMClient"] = {}
+
+logger = get_logger(__name__)
 
 
 class LLMClient:
@@ -38,7 +41,7 @@ class LLMClient:
             warnings.warn(
                 "OPENAI_API_KEY is not set. Please set it to use the LLM checker."
             )
-            return None
+            return
 
         self.client = ChatOpenAI(
             model=self.llm_config.get("model"),
@@ -60,6 +63,8 @@ class LLMClient:
         )
         res = response.content
         assert isinstance(res, str), f"LLM response is not a string: {type(res)}"
+        logger.debug(f"Usage: {response.usage_metadata}")
+
         return res.strip()
 
 
