@@ -1,0 +1,15 @@
+[project]
+name = "qualiluma"
+version = "0.1.0"
+description = "Using modern LLMs for code quality review"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dotenv>=0.9.9",
+    "langchain-openai>=0.3.33",
+    "loguru>=0.7.3",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "pyyaml>=6.0.3",
+    "tqdm>=4.67.1",
+]

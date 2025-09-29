@@ -25,8 +25,8 @@ def _load_numbered(file_path: Path) -> str:
 
 
 class VariablesConsistencyChecker(SimpleCheckerABC):
-    def __init__(self):
-        self.llm_client = get_llm_client()
+    def __init__(self, thorough: bool = False):
+        self.llm_client = get_llm_client("fast" if not thorough else "thorough")
 
     def _check_file(self, file_path: Path, checker_config: dict) -> FileCheckResult:
         """Check a single file for issues."""
@@ -42,6 +42,11 @@ class VariablesConsistencyChecker(SimpleCheckerABC):
         list_variables = self.llm_client(prompt_detect)
         logger.debug(f"prompt_detect: {prompt_detect}")
         logger.debug(f"list_variables: {list_variables}")
+
+        if len(list_variables.strip()) == 0:
+            return file_res.ambiguous(
+                "No variables detected"
+            )  # no variables found, strange
 
         prompt_check = checker_config["prompt_check_consistency"].format(
             variables=list_variables

@@ -1,4 +1,4 @@
-from qualiluma.config import Config
+from qualiluma.util import Config
 
 
 class TestConfig:

@@ -18,6 +18,18 @@ repos:
     hooks:
       - id: ruff
         args: [--extend-select, I, --fix]
-      # - id: ruff  # run as isort
-      #   args: [check, --select, I, --fix]
       - id: ruff-format
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.8.22
+    hooks:
+      - id: uv-lock
+
+  - repo: local
+    hooks:
+    - id: pytest
+      name: pytest
+      entry: uv run -m pytest --cov=qualiluma tests -m "not slow"
+      language: system
+      pass_filenames: false
+      always_run: true
