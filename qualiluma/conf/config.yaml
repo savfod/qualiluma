@@ -89,10 +89,10 @@ checkers_extra:
       Please start your answer with 'good' if everything is allright or 'bad' if anything is wrong.
 
 llms:
-  default:
-    model: "gpt-5-nano"
-    max_tokens: 32_768
+  fast:
+    model: gpt-4.1-mini-2025-04-14
+    max_tokens: 16_384
 
-    # model: "gpt-4.1-mini"
-    # max_tokens: 32_768
-    # hm, what max_tokens should be reasonable?
+  thorough:
+    model: "gpt-5-nano"  # 4.1? 5-mini?
+    max_tokens: 32_768

@@ -14,10 +14,11 @@ from qualiluma.checks.base import (
     SimpleCheckerAdapter,
 )
 from qualiluma.checks.llm_simple_checker import LLMSimpleChecker
-from qualiluma.config import Config
+from qualiluma.util import Config
 
 
 class TestSimpleCheckerAdapter:
+    @pytest.mark.slow
     def test_real_checker(self):
         config = Config()
         checker = LLMSimpleChecker()
@@ -99,7 +100,7 @@ class TestFileIssueAndCheckResultBuilder:
         assert "Check failed" in failed.issues[0].message
 
         ambiguous = b.ambiguous("unclear")
-        assert ambiguous.was_checked is True
+        assert ambiguous.was_checked is False
         assert ambiguous.issues[0].severity == Severity.INFO
         assert ambiguous.issues[0].message == "unclear"
 

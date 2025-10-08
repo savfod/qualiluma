@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from ..util.llm import get_llm_client
-from .base import FileCheckResult, FileCheckResultBuilder, Severity, SimpleCheckerABC
+from .base import FileCheckResult, FileCheckResultBuilder, SimpleCheckerABC
 from .variable_consistency import _load_numbered
 
 # TODO find better debug method. Maybe file logging.
@@ -12,8 +12,8 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 class PepChecker(SimpleCheckerABC):
     """Checker for PEP 8 compliance."""
 
-    def __init__(self):
-        self.llm_client = get_llm_client()
+    def __init__(self, thorough: bool = False):
+        self.llm_client = get_llm_client("fast" if not thorough else "thorough")
 
     def _check_file(self, file_path: Path, checker_config: dict) -> FileCheckResult:
         """Check a single file for issues."""
