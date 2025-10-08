@@ -97,13 +97,8 @@ def log_llm_pricing(config=CONFIG.get("llms_pricing", {})) -> float:
         The total cost of LLM usage.
     """
 
-    total_cost = 0.0
-
-    # 2025-09-17 15:45:50.599 | DEBUG    | qualiluma.util.llm:__call__:65 - Usage: {'input_tokens': 98, 'output_tokens': 1145, 'total_tokens': 1243, 'input_token_details': {'audio': 0, 'cache_read': 0}, 'output_token_details': {'audio': 0, 'reasoning': 1088}}
-
-    # using input_tokens, output_tokens, reasoning_tokens
-
     incomplete_info = False
+    cost_by_model = {}
     for model, usage in USAGE_HANDLER.usage_metadata.items():
         input_cached = usage.get("input_cached_details", {}).get("cache_read", 0)
         input_non_cached = usage.get("input_tokens", 0) - input_cached
@@ -122,12 +117,15 @@ def log_llm_pricing(config=CONFIG.get("llms_pricing", {})) -> float:
             incomplete_info = True
             continue
 
-        total_cost += (
+        cost_by_model[model] = (
             input_non_cached * model_config["input_noncached_per_1m"] / 1_000_000
+            + output_tokens * model_config["output_per_1m"] / 1_000_000
+            + input_cached * model_config["input_cached_per_1m"] / 1_000_000
         )
-        total_cost += output_tokens * model_config["output_per_1m"] / 1_000_000
-        total_cost += input_cached * model_config["input_cached_per_1m"] / 1_000_000
 
     incomplete_str = " (INCOMPLETE info)" if incomplete_info else ""
+    for model, cost in cost_by_model.items():
+        logger.debug(f"LLM Cost for {model}{incomplete_str}: ${cost:.4f}")
+    total_cost = sum(cost_by_model.values())
     logger.info(f"Total LLM Cost{incomplete_str}: ${total_cost:.4f}")
     return total_cost
