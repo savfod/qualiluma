@@ -20,6 +20,7 @@ from .checks import (
     check_trailing_newline,
 )
 from .util import Config, get_logger, init_logging
+from .util.llm import log_llm_pricing
 
 logger = get_logger(__name__)
 results_logger = get_logger(__name__, results_mode=True)  # for cleaner output
@@ -232,6 +233,7 @@ def check(
     checkers = build_checkers(config, filter_checkers, thorough)
     check_results = check_path(target_path, checkers)
     visualize_results(check_results)
+    log_llm_pricing()
     return int(contains_errors(check_results))
 
 
