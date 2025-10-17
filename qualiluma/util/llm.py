@@ -71,7 +71,7 @@ class LLMClient:
         return res.strip()
 
 
-def get_llm_client(name: str = "default") -> LLMClient | None:
+def get_llm_client(name: str = "fast") -> LLMClient | None:
     """
     Get the LLM client for code checking.
 
@@ -87,7 +87,7 @@ def get_llm_client(name: str = "default") -> LLMClient | None:
     return _LLM_CLIENTS.get(name, None)
 
 
-def log_llm_pricing(config=CONFIG.get("llms_pricing", {})) -> float:
+def log_llm_pricing(config: dict | None = None) -> float:
     """Log the LLM usage and pricing information.
 
     Args:
@@ -96,6 +96,8 @@ def log_llm_pricing(config=CONFIG.get("llms_pricing", {})) -> float:
     Returns:
         The total cost of LLM usage.
     """
+    if config is None:
+        config = CONFIG.get("llm_pricing", {})
 
     incomplete_info = False
     cost_by_model = {}

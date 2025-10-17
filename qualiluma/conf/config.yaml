@@ -98,7 +98,7 @@ llms:
     model: gpt-5-2025-08-07
     max_tokens: 32_768
 
-llms_pricing:
+llm_pricing:
   "gpt-4.1-mini-2025-04-14":
     input_noncached_per_1m: 2.0
     input_cached_per_1m: 0.5
