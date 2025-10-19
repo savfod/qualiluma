@@ -3,7 +3,7 @@
 import os
 import warnings
 from pathlib import Path
-from typing import Any
+import typing as tp
 
 import dotenv
 from langchain_core.callbacks import UsageMetadataCallbackHandler
@@ -19,7 +19,8 @@ USAGE_HANDLER = UsageMetadataCallbackHandler()
 logger = get_logger(__name__)
 
 
-class LLMClient:
+T = tp.TypeVar("T")
+class LLMClient(tp.Generic[T]):
     """Simple wrapper to use only our simple for now logic"""
 
     def __init__(self, name: str = "fast"):
@@ -29,7 +30,7 @@ class LLMClient:
             name: The name of the LLM client to use (e.g. default if we have more)
         """
 
-        self.llm_config: Any = CONFIG["llms"].get(name, {})
+        self.llm_config: tp.Any = CONFIG["llms"].get(name, {})
         self.client: ChatOpenAI | None = None
 
         if not self.llm_config:
@@ -70,6 +71,25 @@ class LLMClient:
 
         return res.strip()
 
+    def structured_output(self, query: str, answer_schema: type[T]) -> T:
+        """Get structured output from the LLM client using pydantic
+
+        Args:
+            answer_schema: The pydantic model to use for structured output
+        Returns:
+            The structured output from the LLM client
+        """ 
+        assert self.client, "LLM client is not initialized"
+
+        client_structured = self.client.with_structured_output(answer_schema)
+        res = client_structured.invoke(
+            [("user", query)],
+            config={"callbacks": [USAGE_HANDLER]},
+        )
+        assert isinstance(
+            res, answer_schema
+        ), f"LLM structured response is not of type {answer_schema}: {res}"
+        return res
 
 def get_llm_client(name: str = "fast") -> LLMClient | None:
     """
@@ -98,7 +118,7 @@ def log_llm_pricing(config: dict | None = None) -> float:
     """
     if config is None:
         config = CONFIG.get("llm_pricing", {})
-
+ 
     incomplete_info = False
     cost_by_model = {}
     for model, usage in USAGE_HANDLER.usage_metadata.items():

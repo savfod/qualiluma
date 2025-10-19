@@ -1,12 +1,12 @@
 # checks/base.py
 import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 from enum import IntEnum
 from pathlib import Path
 from typing import Any, Callable
 
 import tqdm
+from pydantic import BaseModel
 
 from ..util import Config, get_logger
 
@@ -21,22 +21,21 @@ class Severity(IntEnum):
     ERROR = 3
 
 
-@dataclass
-class FileIssue:
+class FileIssue(BaseModel):
     """Represents an issue found in a file."""
 
     check_name: str
+    line: int | None = None
     message: str
     severity: Severity
-    # line: int = 0
     # column: int = 0
     # suggestion: str = ""
 
 
-@dataclass
-class FileCheckResult:
+class FileCheckResult(BaseModel):
     was_checked: bool  # some files may be ignored
-    issues: list[FileIssue] = field(default_factory=list)
+    # issues: list[FileIssue] = field(default_factory=list)
+    issues: list[FileIssue]
 
 
 class FileCheckResultBuilder:
