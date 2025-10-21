@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import dotenv
+from langchain_core.callbacks import UsageMetadataCallbackHandler
 from langchain_openai import ChatOpenAI
 
 from ..util.config import CONFIG_PATH, _yaml_read
@@ -13,6 +14,7 @@ from .logs import get_logger
 
 CONFIG = _yaml_read(CONFIG_PATH)
 _LLM_CLIENTS: dict[str, "LLMClient"] = {}
+USAGE_HANDLER = UsageMetadataCallbackHandler()
 
 logger = get_logger(__name__)
 
@@ -20,7 +22,7 @@ logger = get_logger(__name__)
 class LLMClient:
     """Simple wrapper to use only our simple for now logic"""
 
-    def __init__(self, name: str = "default"):
+    def __init__(self, name: str = "fast"):
         """Init LLM client
 
         Args:
@@ -60,6 +62,7 @@ class LLMClient:
         response = self.client.invoke(
             [("user", query)],  # or system?
             # max_tokens=self.llm_config["max_tokens"],
+            config={"callbacks": [USAGE_HANDLER]},
         )
         res = response.content
         assert isinstance(res, str), f"LLM response is not a string: {type(res)}"
@@ -68,7 +71,7 @@ class LLMClient:
         return res.strip()
 
 
-def get_llm_client(name: str = "default") -> LLMClient | None:
+def get_llm_client(name: str = "fast") -> LLMClient | None:
     """
     Get the LLM client for code checking.
 
@@ -82,3 +85,49 @@ def get_llm_client(name: str = "default") -> LLMClient | None:
             _LLM_CLIENTS[name] = client
 
     return _LLM_CLIENTS.get(name, None)
+
+
+def log_llm_pricing(config: dict | None = None) -> float:
+    """Log the LLM usage and pricing information.
+
+    Args:
+        config: The pricing configuration for LLM usage.
+
+    Returns:
+        The total cost of LLM usage.
+    """
+    if config is None:
+        config = CONFIG.get("llm_pricing", {})
+
+    incomplete_info = False
+    cost_by_model = {}
+    for model, usage in USAGE_HANDLER.usage_metadata.items():
+        input_cached = usage.get("input_cached_details", {}).get("cache_read", 0)
+        input_non_cached = usage.get("input_tokens", 0) - input_cached
+        output_tokens = usage.get("output_tokens", 0)  # includes reasoning
+
+        if model not in config:
+            logger.warning(f"No pricing configuration found for model '{model}'")
+            incomplete_info = True
+            continue
+
+        model_config = config.get(model, {})
+        required_keys = {"input_noncached_per_1m", "output_per_1m", "input_cached_per_1m"}
+        missing_keys = required_keys - set(model_config.keys())
+        if missing_keys:
+            logger.warning(f"Incomplete pricing configuration for model '{model}', missing keys: {missing_keys}")
+            incomplete_info = True
+            continue
+
+        cost_by_model[model] = (
+            input_non_cached * model_config["input_noncached_per_1m"] / 1_000_000
+            + output_tokens * model_config["output_per_1m"] / 1_000_000
+            + input_cached * model_config["input_cached_per_1m"] / 1_000_000
+        )
+
+    incomplete_str = " (INCOMPLETE info)" if incomplete_info else ""
+    for model, cost in cost_by_model.items():
+        logger.debug(f"LLM Cost for {model}{incomplete_str}: ${cost:.4f}")
+    total_cost = sum(cost_by_model.values())
+    logger.info(f"Total LLM Cost{incomplete_str}: ${total_cost:.4f}")
+    return total_cost
