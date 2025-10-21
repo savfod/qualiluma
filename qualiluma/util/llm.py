@@ -112,10 +112,10 @@ def log_llm_pricing(config: dict | None = None) -> float:
             continue
 
         model_config = config.get(model, {})
-        if {"input_noncached_per_1m", "output_per_1m", "input_cached_per_1m"} - set(
-            model_config.keys()
-        ):
-            logger.warning(f"Incomplete pricing configuration for model '{model}'")
+        required_keys = {"input_noncached_per_1m", "output_per_1m", "input_cached_per_1m"}
+        missing_keys = required_keys - set(model_config.keys())
+        if missing_keys:
+            logger.warning(f"Incomplete pricing configuration for model '{model}', missing keys: {missing_keys}")
             incomplete_info = True
             continue
 
