@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ..util import get_llm_client, get_logger
+from ..util import get_llm_client, get_logger, load_numbered
 from .base import (
     FileCheckResult,
     FileCheckResultBuilder,
@@ -8,20 +8,6 @@ from .base import (
 )
 
 logger = get_logger(__name__)
-
-
-def _load_numbered(file_path: Path) -> str:
-    """Load a file and return its content with line numbers.
-
-    Args:
-        file_path (Path): The path to the file to load.
-
-    Returns:
-        str: The content of the file with line numbers.
-    """
-    with file_path.open("r") as f:
-        lines = f.readlines()
-    return "\n".join(f"{i + 1}: {line.strip()}" for i, line in enumerate(lines))
 
 
 class VariablesConsistencyChecker(SimpleCheckerABC):
@@ -35,7 +21,7 @@ class VariablesConsistencyChecker(SimpleCheckerABC):
         if self.llm_client is None:
             return file_res.ambiguous("LLM client not initialized")
 
-        code_numbered = _load_numbered(file_path)
+        code_numbered = load_numbered(file_path)
         prompt_detect = checker_config["prompt_detect_variables"].format(
             code=code_numbered
         )

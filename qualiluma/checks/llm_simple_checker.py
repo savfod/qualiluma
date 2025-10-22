@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ..util import get_llm_client, get_logger
+from ..util import get_llm_client, get_logger, load_numbered
 from ..util.config import CONFIG_PATH, _yaml_read
 from .base import (
     FileCheckResult,
@@ -11,20 +11,6 @@ from .base import (
 CONFIG = _yaml_read(CONFIG_PATH)
 
 logger = get_logger(__name__)
-
-
-def load_numbered(file_path: Path) -> str:
-    """Load a file and return its content with line numbers.
-
-    Args:
-        file_path (Path): The path to the file to load.
-
-    Returns:
-        str: The content of the file with line numbers.
-    """
-    with file_path.open("r") as f:
-        lines = f.readlines()
-    return "\n".join(f"{i + 1}: {line.rstrip()}" for i, line in enumerate(lines))
 
 
 class LLMSimpleChecker(SimpleCheckerABC):
