@@ -34,7 +34,6 @@ class FileIssue(BaseModel):
 
 class FileCheckResult(BaseModel):
     was_checked: bool  # some files may be ignored
-    # issues: list[FileIssue] = field(default_factory=list)
     issues: list[FileIssue]
 
 

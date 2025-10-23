@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from pydantic import BaseModel
+
 from ..util import get_llm_client, get_logger, load_numbered
 from .base import (
     FileCheckResult,
@@ -8,6 +10,16 @@ from .base import (
 )
 
 logger = get_logger(__name__)
+
+
+class _Identifier(BaseModel):
+    name: str
+    line_defined: int
+    description: str
+
+
+class _IdentifiersList(BaseModel):
+    variables: list[_Identifier]
 
 
 class VariablesConsistencyChecker(SimpleCheckerABC):
@@ -25,25 +37,23 @@ class VariablesConsistencyChecker(SimpleCheckerABC):
         prompt_detect = checker_config["prompt_detect_variables"].format(
             code=code_numbered
         )
-        list_variables = self.llm_client(prompt_detect)
+        list_variables = self.llm_client.structured_output(
+            prompt_detect, _IdentifiersList
+        )
         logger.debug(f"prompt_detect: {prompt_detect}")
         logger.debug(f"list_variables: {list_variables}")
 
-        if len(list_variables.strip()) == 0:
+        if len(list_variables.variables) == 0:
             return file_res.ambiguous(
                 "No variables detected"
             )  # no variables found, strange
 
-        prompt_check = checker_config["prompt_check_consistency"].format(
-            variables=list_variables
+        list_variables_str = "\n".join(
+            f"- {var.name} (line {var.line_defined}): {var.description}"
+            for var in list_variables.variables
         )
-        result = self.llm_client(prompt_check)
-
-        normalized = result.lstrip(".").lower()
-        if normalized.startswith("good"):
-            return file_res.passed()
-        elif normalized.startswith("bad"):
-            return file_res.failed(f"Variables consistency check failed: {result}")
-        else:
-            # unknown response format
-            return file_res.ambiguous(f"Unknown response format: {result}")
+        logger.debug(f"list_variables_str: {list_variables_str}")
+        prompt_check = checker_config["prompt_check_consistency"].format(
+            variables=list_variables_str
+        )
+        return self.llm_client.structured_output(prompt_check, FileCheckResult)

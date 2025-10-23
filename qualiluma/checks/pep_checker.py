@@ -26,16 +26,7 @@ class PepChecker(SimpleCheckerABC):
         prompt_check: str = checker_config["prompt_check_case"].format(
             code=code_numbered,
         )
-        result: str = self.llm_client(prompt_check)
-
-        if self._starts_with(result, "good"):
-            return file_res.passed()
-
-        elif self._starts_with(result, "bad"):
-            return file_res.failed(f"Case consistency check failed: {result}")
-
-        else:
-            return file_res.ambiguous(f"Unknown response format: {result}")
+        return self.llm_client.structured_output(prompt_check, FileCheckResult)
 
     def _starts_with(self, string: str, prefix: str) -> bool:
         return string.lstrip(".").lower().startswith(prefix)
