@@ -16,5 +16,4 @@ def load_numbered(file_path: Path) -> str:
         str: The content of the file with line numbers.
     """
     with file_path.open("r") as f:
-        lines = f.readlines()
-    return "\n".join(f"{i}: {line.rstrip()}" for i, line in enumerate(lines, start=1))
+        return "\n".join(f"{i}: {line.rstrip()}" for i, line in enumerate(f, start=1))
