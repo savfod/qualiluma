@@ -75,7 +75,8 @@ class LLMClient(tp.Generic[T]):
         """Get structured output from the LLM client using pydantic
 
         Args:
-            answer_schema: The pydantic model to use for structured output
+            query: The prompt or question to send to the LLM client.
+            answer_schema: The pydantic model to use for structured output.
         Returns:
             The structured output from the LLM client
         """ 
