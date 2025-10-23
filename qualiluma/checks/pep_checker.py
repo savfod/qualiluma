@@ -28,5 +28,3 @@ class PepChecker(SimpleCheckerABC):
         )
         return self.llm_client.structured_output(prompt_check, FileCheckResult)
 
-    def _starts_with(self, string: str, prefix: str) -> bool:
-        return string.lstrip(".").lower().startswith(prefix)
