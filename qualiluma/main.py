@@ -173,7 +173,7 @@ def visualize_results(results: dict[str, dict[Path, FileCheckResult]]) -> None:
                 if len(status.issues) > 0:
                     problems_by_checker[checker_name].append(file_path)
                     results_logger.info(f"❌ {file_path} - issues found:")
-                    for issue in status.issues:
+                    for issue in sorted(status.issues, key=lambda x: (x.line or 0)):
                         line = issue.line if issue.line is not None else "unknown"
                         err_msg = (
                             f"    - {file_path}:{line}: {issue.severity.name}:"
