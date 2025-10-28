@@ -166,7 +166,7 @@ def visualize_results(results: dict[str, dict[Path, FileCheckResult]]) -> None:
                     )
                     if len(status.issues) > 1:
                         results_logger.warning(
-                            f"    (and {len(status.issues)-1} more issues)"
+                            f"    (and {len(status.issues) - 1} more issues)"
                         )
 
             else:

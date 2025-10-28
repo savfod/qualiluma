@@ -27,4 +27,3 @@ class PepChecker(SimpleCheckerABC):
             code=code_numbered,
         )
         return self.llm_client.structured_output(prompt_check, FileCheckResult)
-

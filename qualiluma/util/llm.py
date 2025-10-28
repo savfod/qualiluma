@@ -1,9 +1,9 @@
 """Module for LLMs usage"""
 
 import os
+import typing as tp
 import warnings
 from pathlib import Path
-import typing as tp
 
 import dotenv
 from langchain_core.callbacks import UsageMetadataCallbackHandler
@@ -20,6 +20,8 @@ logger = get_logger(__name__)
 
 
 T = tp.TypeVar("T")
+
+
 class LLMClient(tp.Generic[T]):
     """Simple wrapper to use only our simple for now logic"""
 
@@ -79,7 +81,7 @@ class LLMClient(tp.Generic[T]):
             answer_schema: The pydantic model to use for structured output.
         Returns:
             The structured output from the LLM client
-        """ 
+        """
         assert self.client, "LLM client is not initialized"
 
         client_structured = self.client.with_structured_output(answer_schema)
@@ -91,6 +93,7 @@ class LLMClient(tp.Generic[T]):
             res, answer_schema
         ), f"LLM structured response is not of type {answer_schema}: {res}"
         return res
+
 
 def get_llm_client(name: str = "fast") -> LLMClient | None:
     """
@@ -119,7 +122,7 @@ def log_llm_pricing(config: dict | None = None) -> float:
     """
     if config is None:
         config = CONFIG.get("llm_pricing", {})
- 
+
     incomplete_info = False
     cost_by_model = {}
     for model, usage in USAGE_HANDLER.usage_metadata.items():
@@ -133,10 +136,16 @@ def log_llm_pricing(config: dict | None = None) -> float:
             continue
 
         model_config = config.get(model, {})
-        required_keys = {"input_noncached_per_1m", "output_per_1m", "input_cached_per_1m"}
+        required_keys = {
+            "input_noncached_per_1m",
+            "output_per_1m",
+            "input_cached_per_1m",
+        }
         missing_keys = required_keys - set(model_config.keys())
         if missing_keys:
-            logger.warning(f"Incomplete pricing configuration for model '{model}', missing keys: {missing_keys}")
+            logger.warning(
+                f"Incomplete pricing configuration for model '{model}', missing keys: {missing_keys}"
+            )
             incomplete_info = True
             continue
 
