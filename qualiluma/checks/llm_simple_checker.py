@@ -1,11 +1,10 @@
 from pathlib import Path
 
-from ..util import get_llm_client, get_logger
+from ..util import get_llm_client, get_logger, load_numbered
 from ..util.config import CONFIG_PATH, _yaml_read
 from .base import (
     FileCheckResult,
     FileCheckResultBuilder,
-    Severity,
     SimpleCheckerABC,
 )
 
@@ -36,7 +35,7 @@ class LLMSimpleChecker(SimpleCheckerABC):
             logger.debug(f"Skipping unsupported file type: {file_path.suffix}")
             return file_res.ambiguous(f"Unsupported file type {file_path.suffix}")
 
-        code = file_path.read_text()
+        code = load_numbered(file_path)
 
         # Enforce length limit to avoid sending huge files to the LLM
         if len(code) > checker_config["length_limit"]:
@@ -53,18 +52,5 @@ class LLMSimpleChecker(SimpleCheckerABC):
         assert isinstance(prompt_template, str), "Prompt template must be a string."
         prompt = prompt_template.format(code=code)
 
-        result = self.llm_client(prompt)
-
-        # Interpret response
-        normalized = result.lstrip(".").lower()
-        if normalized.startswith("good"):
-            return file_res.passed()
-        elif normalized.startswith("bad"):
-            return file_res.failed(f"LLM found issues: {result}")
-        else:
-            logger.warning(f"Ambiguous LLM result: {result[:200]}")
-
-            # Unknown response format
-            return file_res.ambiguous(
-                f"Failed to parse LLM response: {result}", severity=Severity.WARNING
-            )
+        logger.debug(f"Sending prompt {prompt}")
+        return self.llm_client.structured_output(prompt, FileCheckResult)

@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
+from ..util import load_numbered
 from ..util.llm import get_llm_client
 from .base import FileCheckResult, FileCheckResultBuilder, SimpleCheckerABC
-from .variable_consistency import _load_numbered
 
 # TODO find better debug method. Maybe file logging.
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
@@ -22,20 +22,8 @@ class PepChecker(SimpleCheckerABC):
         if self.llm_client is None:
             return file_res.ambiguous("LLM client not initialized")
 
-        code_numbered: str = _load_numbered(file_path)
+        code_numbered: str = load_numbered(file_path)
         prompt_check: str = checker_config["prompt_check_case"].format(
             code=code_numbered,
         )
-        result: str = self.llm_client(prompt_check)
-
-        if self._starts_with(result, "good"):
-            return file_res.passed()
-
-        elif self._starts_with(result, "bad"):
-            return file_res.failed(f"Case consistency check failed: {result}")
-
-        else:
-            return file_res.ambiguous(f"Unknown response format: {result}")
-
-    def _starts_with(self, string: str, prefix: str) -> bool:
-        return string.lstrip(".").lower().startswith(prefix)
+        return self.llm_client.structured_output(prompt_check, FileCheckResult)

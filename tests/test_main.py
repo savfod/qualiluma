@@ -86,7 +86,7 @@ def test_visualize_results(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     log_contents = log_file.read_text()
 
     assert f"❌ {bad_path} - issues found" in log_contents
-    assert "    - ERROR: CheckerAlpha - boom" in log_contents
+    assert "ERROR: CheckerAlpha - boom" in log_contents
     assert f"⚠️  {ambiguous_path} - not checked: unclear status" in log_contents
     assert "Check status: '❌ Errors found'" in log_contents
     assert "  - ❌ Found issues in 1 files by 'CheckerAlpha'." in log_contents

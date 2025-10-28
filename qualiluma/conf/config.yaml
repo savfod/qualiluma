@@ -31,10 +31,10 @@ checkers_extra:
   - name: "LLMSimpleChecker"
     check_name: "LLM simple checker"
     prompt: |
-      Please check the code for errors.
+      Please check the code for errors, warnings and bad practices.
       Start your answer with "good" if there are no problems, with "bad" otherwise.
       Please provide a brief description of the problems afterwards.
-      The code is here: ```{code}```.
+      The code (with numbered lines) is here: ```{code}```.
       (Start your answer with "good" if there are no problems, with "bad" otherwise.)
     length_limit: 10000
     # todo: move to file_type in _check_file

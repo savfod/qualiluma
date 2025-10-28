@@ -46,7 +46,9 @@ class TestSimpleCheckerAdapter:
                         was_checked=True,
                         issues=[
                             FileIssue(
-                                "MySimpleChecker", "contains fail", Severity.ERROR
+                                check_name="MySimpleChecker",
+                                message="contains fail",
+                                severity=Severity.ERROR,
                             )
                         ],
                     )
@@ -137,7 +139,13 @@ class TestCheckerABC:
                 # simple warning issue for other files
                 return FileCheckResult(
                     was_checked=True,
-                    issues=[FileIssue(self.get_name(), "warn", Severity.WARNING)],
+                    issues=[
+                        FileIssue(
+                            check_name=self.get_name(),
+                            message="just a warning",
+                            severity=Severity.WARNING,
+                        )
+                    ],
                 )
 
         class FakeConfig:

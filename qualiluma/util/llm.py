@@ -1,9 +1,9 @@
 """Module for LLMs usage"""
 
 import os
+import typing as tp
 import warnings
 from pathlib import Path
-from typing import Any
 
 import dotenv
 from langchain_core.callbacks import UsageMetadataCallbackHandler
@@ -19,7 +19,10 @@ USAGE_HANDLER = UsageMetadataCallbackHandler()
 logger = get_logger(__name__)
 
 
-class LLMClient:
+T = tp.TypeVar("T")
+
+
+class LLMClient(tp.Generic[T]):
     """Simple wrapper to use only our simple for now logic"""
 
     def __init__(self, name: str = "fast"):
@@ -29,7 +32,7 @@ class LLMClient:
             name: The name of the LLM client to use (e.g. default if we have more)
         """
 
-        self.llm_config: Any = CONFIG["llms"].get(name, {})
+        self.llm_config: tp.Any = CONFIG["llms"].get(name, {})
         self.client: ChatOpenAI | None = None
 
         if not self.llm_config:
@@ -69,6 +72,27 @@ class LLMClient:
         logger.debug(f"Usage: {response.usage_metadata}")
 
         return res.strip()
+
+    def structured_output(self, query: str, answer_schema: type[T]) -> T:
+        """Get structured output from the LLM client using pydantic
+
+        Args:
+            query: The prompt or question to send to the LLM client.
+            answer_schema: The pydantic model to use for structured output.
+        Returns:
+            The structured output from the LLM client
+        """
+        assert self.client, "LLM client is not initialized"
+
+        client_structured = self.client.with_structured_output(answer_schema)
+        res = client_structured.invoke(
+            [("user", query)],
+            config={"callbacks": [USAGE_HANDLER]},
+        )
+        assert isinstance(
+            res, answer_schema
+        ), f"LLM structured response is not of type {answer_schema}: {res}"
+        return res
 
 
 def get_llm_client(name: str = "fast") -> LLMClient | None:
@@ -112,10 +136,16 @@ def log_llm_pricing(config: dict | None = None) -> float:
             continue
 
         model_config = config.get(model, {})
-        required_keys = {"input_noncached_per_1m", "output_per_1m", "input_cached_per_1m"}
+        required_keys = {
+            "input_noncached_per_1m",
+            "output_per_1m",
+            "input_cached_per_1m",
+        }
         missing_keys = required_keys - set(model_config.keys())
         if missing_keys:
-            logger.warning(f"Incomplete pricing configuration for model '{model}', missing keys: {missing_keys}")
+            logger.warning(
+                f"Incomplete pricing configuration for model '{model}', missing keys: {missing_keys}"
+            )
             incomplete_info = True
             continue
 
