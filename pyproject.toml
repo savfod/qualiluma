@@ -14,3 +14,14 @@ dependencies = [
     "pyyaml>=6.0.3",
     "tqdm>=4.67.1",
 ]
+
+[project.scripts]
+qualiluma = "qualiluma.main:main"
+
+[tool.setuptools.packages.find]
+include = ["qualiluma*"]
+
+[tool.setuptools.package-data]
+qualiluma = [
+    "conf/**/*",
+]
