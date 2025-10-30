@@ -22,5 +22,5 @@ include = ["qualiluma*"]
 
 [tool.setuptools.package-data]
 qualiluma = [
-    "conf/*",
+    "conf/**/*",
 ]
